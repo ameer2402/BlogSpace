@@ -1,0 +1,52 @@
+
+
+  <div class="toast <%= toast.status %>">
+    <div class="toast-content">
+      <div class="icon">
+        <i class="<%= toast.status === 'success' ? 'fas fa-check' : 'fas fa-exclamation-circle' %>"></i>
+      </div>
+      <div class="message">
+        <span class="text text-1"><%= toast.status.charAt(0).toUpperCase() + toast.status.slice(1) %></span>
+        <span class="text text-2"><%= toast.message %></span>
+      </div>
+    </div>
+    <i class="fa-solid fa-xmark close"></i>
+    <div class="progress"></div>
+  </div>
+
+  <!-- <script>
+    const toast = document.querySelector(".toast");
+    const closeIcon = document.querySelector(".close");
+    const progress = document.querySelector(".progress");
+
+    let timer1, timer2;
+
+    function showToast() {
+      toast.classList.add("active");
+      progress.classList.add("active");
+
+      timer1 = setTimeout(() => {
+        toast.classList.remove("active");
+      }, 5000);
+
+      timer2 = setTimeout(() => {
+        progress.classList.remove("active");
+      }, 5300);
+    }
+
+    closeIcon.addEventListener("click", () => {
+      toast.classList.remove("active");
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    });
+
+    // Trigger the toast on page load
+    showToast();
+  </script>
+
+
+
+
+
+
+ -->

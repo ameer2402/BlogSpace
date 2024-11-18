@@ -1,0 +1,116 @@
+<style>
+
+  
+  /* Default state: rectangular shape */
+  .form-control {
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    transition: border-radius 0.3s ease;
+  }
+
+  /* Hover state: add border radius */
+  .form-control:hover {
+    border-radius: 35px;
+  }
+
+  /* Focus state: add border radius, remove shadow */
+  .form-control:focus {
+    border-radius: 35px;
+    outline: none;
+    box-shadow: none;
+    border: 1px solid #007bff; /* Optional: Add a border color on focus */
+  }
+
+  /* Button Styling */
+  .btn-outline-success {
+    border-radius: 10px;
+  }
+
+  .nav-btn {
+  border: 2px solid black; /* Purple border */
+  color:black; /* Black text without hover */
+  font: 12px Montserrat;
+  text-transform: uppercase;
+  padding: 10px;
+  font-weight: 600;
+  max-width: 150px;
+  display: block;
+  text-align: center;
+  margin: 10px auto;
+  position: relative;
+  background-color: transparent; /* Transparent background */
+  transition: all 0.3s ease-out; /* Smooth transition */
+}
+
+.nav-btn:hover {
+  background-color: #7c4dff; /* Purple background on hover */
+  border-color: #7c4dff; /* Keep purple border */
+  color: #fff; /* White text on hover */
+}
+
+  
+</style>
+
+<nav class="navbar navbar-expand-lg border-bottom border-body sticky-top" 
+     style="background: linear-gradient(110.6deg, rgb(184, 142, 252) 2.2%, rgb(104, 119, 244) 100.2%); color: black;">
+
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">BlogSpace</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <% if (locals.user) { %>
+        <li class="nav-item">
+          <a class="nav-link" href="/blog/addBlog">Add Blog</a>
+        </li>
+        <% } %>
+      </ul>
+
+      <form class="d-flex align-items-center mb-2 mb-lg-0" role="search" action="/category" method="POST">
+        <input class="form-control me-2 typeahead" type="search" placeholder="Search" name="category" aria-label="Search">
+        <button class="btn nav-btn" type="submit">Search</button>
+      </form>
+
+      <ul class="navbar-nav ms-auto">
+        <% if (locals.user) { %>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            
+            
+              <img src="<%= locals.user.profileImage %>" class="rounded-circle" alt="Profile Pic" width="40" height="40">
+            
+            <span class="ms-2 d-inline d-lg-inline"><%= locals.user.name %></span>
+
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li class="dropdown-item d-flex align-items-center">
+              <i class="fas fa-user-cog me-2"></i>
+              <a href="/user/setting" class="text-decoration-none">Settings</a>
+            </li>
+            <li class="dropdown-item d-flex align-items-center">
+              <i class="fas fa-sign-out-alt me-2"></i>
+              <a href="/user/logout" class="text-decoration-none">Logout</a>
+            </li>
+          </ul>
+        </li>
+        <% } else { %>
+        <li class="nav-item d-flex align-items-center">
+          <div class="rounded-circle d-flex align-items-center justify-content-center bg-secondary text-white"
+            style="width: 40px; height: 40px;">
+            <i class="fas fa-user"></i>
+          </div>
+          <a class="nav-link ms-2" href="/user/signin">Sign In</a>
+        </li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+</nav>

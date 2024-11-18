@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("./partials/head") %>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome for Icons -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+  
+
+  <style>
+    
+    /* Global Styles */
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 95%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      padding: 20px 0;
+    }
+
+    /* Profile Section */
+    .profile-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      align-items: center;
+    }
+
+    .profile-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .profile-info h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8rem;
+      margin-bottom: 5px;
+    }
+
+    .profile-info h6, .profile-info p {
+      margin: 5px 0;
+      font-size: 1rem;
+      color: #555;
+    }
+
+    .default-icon {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #e0e0e0;
+      font-size: 80px;
+      color: #555;
+    }
+
+    .profile-picture-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      padding: 10px;
+    }
+
+    .profile-picture-container img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 3px solid #ccc;
+      object-fit: cover;
+      transition: opacity 0.3s ease;
+    }
+
+    .edit-icon-container {
+      position: absolute;
+      bottom: 10px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+    }
+
+    .profile-picture-container:hover img {
+      opacity: 0.7;
+    }
+
+    .profile-picture-container:hover .edit-icon-container {
+      display: flex;
+    }
+
+    /* Blogs Section */
+    .blogs-container {
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    .blogs-container h3 {
+      margin-bottom: 20px;
+      font-family: 'Montserrat', sans-serif;
+      text-align: center;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      background-color: #f1f1f1;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+      position: relative;
+      min-height: 350px;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .card-img-top {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .card-body {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .card-title {
+      font-weight: 500;
+      font-size: 1.2rem;
+    }
+
+    .card-text {
+      color: #555;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    
+/* Card form positioning for delete button */
+.card form {
+  position: absolute;
+  top: 10px;
+  right: 10px; /* Move delete button to the right corner */
+  margin: 0;
+  padding: 0;
+}
+
+/* Delete Button Styles */
+.delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s ease;
+  width: 40px; /* Initial width for icon only */
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.delete-btn .fa-trash {
+  font-size: 16px;
+  color: #ff4d4d; /* Red color for delete icon */
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.delete-btn .delete-text {
+  display: none; /* Hide text by default */
+  margin-left: 5px;
+  font-size: 14px;
+  color: #ff4d4d; /* Red color for delete text */
+  transition: opacity 0.3s ease;
+}
+
+.delete-btn:hover {
+  width: 120px; /* Expanded width on hover */
+  background-color: #ffe6e6; /* Optional: light red background */
+  border: 0.5px solid #000; /* Black border on hover */
+}
+
+.delete-btn:hover .delete-text {
+  display: inline; /* Show text on hover */
+  opacity: 1;
+}
+
+.delete-btn:hover .fa-trash {
+  transform: scale(1.2); /* Slightly enlarge icon on hover */
+  color: #ff0000; /* Change icon color to darker red on hover */
+}
+
+
+    .profile-picture-container:hover img {
+    transform: scale(1.05); /* Slight zoom effect */
+    opacity: 0.9; /* Optional: reduces opacity slightly for effect */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Adds shadow effect on hover */
+  }
+  .custom-button {
+  border: 1px solid black; /* Purple border */
+  color: #000; /* Black text without hover */
+  font: 12px Montserrat;
+  text-transform: uppercase;
+  padding: 10px;
+  font-weight: 600;
+  max-width: 150px;
+  display: block;
+  text-align: center;
+  margin: 10px auto;
+  position: relative;
+  background-color: transparent; /* Transparent background */
+  transition: all 0.3s ease-out; /* Smooth transition */
+}
+
+.custom-button:hover {
+  background-color: #7c4dff; /* Purple background on hover */
+  border-color: #7c4dff; /* Keep purple border */
+  color: #fff; /* White text on hover */
+}
+
+
+  </style>
+  <link rel="stylesheet" href="/css/styles.css">
+  
+</head>
+
+<body onload="hideLoadingSpinner()">
+  <!-- Include the loading spinner -->
+  <%- include("./partials/spinner") %>
+  <%- include("./partials/nav") %>
+  <% if (toast && toast.message) { %>
+    <%- include("./partials/toast") %>
+<% } %>
+
+  <div class="container">
+    <!-- User Profile Section -->
+    <div class="profile-container">
+      <div class="profile-info">
+        <h2><%= user.name %></h2>
+        <h6>Email: <%= user.email %></h6>
+        <p><strong>Total Blogs:</strong> <%= blogs.length %></p>
+      </div>
+
+      <div class="profile-picture-container">
+        <img src="<%= profileImage %>" alt="Profile Picture">
+
+        <div class="edit-icon-container" id="edit-icon">
+          <i class="fas fa-pen"></i>
+          <span>Edit</span>
+        </div>
+         <!-- File input for profile picture upload (hidden) -->
+  <form id="uploadForm" action="/user/upload-profile-image" method="POST" enctype="multipart/form-data">
+    <input type="file" name="profileImage" id="profileImageInput" accept="image/*" style="display: none;">
+  </form>
+      </div>
+    </div>
+
+    <!-- Blogs Section -->
+    <div class="blogs-container">
+      <h3>Blogs Created</h3>
+      <div class="row">
+        <% blogs.forEach(blog => { %>
+          <div class="card">
+            <form action="/blog/delete/<%= blog._id %>?_method=DELETE" method="POST">
+              <button type="submit" class="btn delete-btn">
+                <i class="fas fa-trash"></i>
+                <span class="delete-text">Delete</span>
+              </button>
+            </form>
+            
+            
+            <img src="<%= blog.coverImage %>" class="card-img-top" alt="Blog Image">
+            <div class="card-body">
+              <h5 class="card-title"><%= blog.title %></h5>
+              <p class="card-text"><%= blog.body.length > 100 ? blog.body.substring(0, 100) + '...' : blog.body %></p>
+              <a href="/blog/<%= blog._id %>" class="btn custom-button">Read more</a>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+  
+
+  <script>
+    const editIcon = document.getElementById('edit-icon');
+    const overlay = document.getElementById('overlay');
+    const modal = document.getElementById('editModal');
+    const profileImageInput = document.getElementById('profileImageInput');
+const uploadForm = document.getElementById('uploadForm');
+
+// Trigger file input when the edit icon is clicked
+editIcon.addEventListener('click', () => {
+  profileImageInput.click();
+});
+
+// Automatically submit the form when a file is selected
+profileImageInput.addEventListener('change', () => {
+  if (profileImageInput.files.length > 0) {
+    uploadForm.submit();
+  }
+});
+
+    editIcon.addEventListener('click', () => {
+      modal.style.display = 'block';
+      overlay.style.display = 'block';
+    });
+  </script>
+   <%- include("./partials/script") %>
+   
+   <%- include("./partials/toastScript") %>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<div class="formcontainer">
+  <div class="card mt-5 pb-5">
+      <div class="d-flex flex-row justify-content-center p-3 adiv text-white">
+          <span class="pb-3">Feedback</span>
+      </div>
+      <div class="mt-2 p-4 text-center">
+          <h6 class="mb-0">Your feedback helps us improve.</h6>
+          <small class="px-3">Please let us know about your experience.</small>
+
+          <!-- Feedback Form -->
+          <form id="feedbackForm" action="/mail/submit-feedback" method="POST" onsubmit="showSubmitSpinner(event)">
+              <input type="hidden" name="rating" id="ratingInput" value="">
+
+              <div class="d-flex flex-row justify-content-center mt-2">
+                  <% const emojis = [
+                      { src: "https://img.icons8.com/emoji/48/000000/angry-face-emoji--v2.png", alt: "Angry", value: 1 },
+                      { src: "https://img.icons8.com/fluent/48/000000/sad.png", alt: "Sad", value: 2 },
+                      { src: "https://img.icons8.com/color/48/000000/happy.png", alt: "Neutral", value: 3 },
+                      { src: "https://img.icons8.com/emoji/48/000000/smiling-face.png", alt: "Happy", value: 4 },
+                      { src: "https://img.icons8.com/color/48/000000/lol.png", alt: "Very Happy", value: 5 }
+                  ]; %>
+                  <% emojis.forEach(function(emoji) { %>
+                      <img 
+                          src="<%= emoji.src %>" 
+                          alt="<%= emoji.alt %>" 
+                          data-value="<%= emoji.value %>" 
+                          class="emoji-icon"
+                          onclick="setRating(<%= emoji.value %>, this)" 
+                          title="<%= emoji.alt %>"
+                      />
+                  <% }) %>
+              </div>
+
+              <!-- Feedback Text Area -->
+              <div class="form-group mt-4">
+                  <textarea class="feedback-form-control" name="feedback" rows="10" placeholder="Message" required></textarea>
+              </div>
+
+              <!-- Submit Button with Spinner -->
+              <div class="mt-2">
+                  <button type="submit" class="feedback-btn btn-block" id="submitButton">
+                      <span id="buttonText">Send Feedback</span>
+                      <!-- Spinner hidden initially -->
+                      <span class="spinner-border spinner-border-sm" id="submitSpinner" style="display: none; margin-left: 8px;"></span>
+                  </button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>

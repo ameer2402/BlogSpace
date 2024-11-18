@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("./partials/head") %>
+  
+  <!-- Google Fonts for better typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      overflow-x: hidden;
+      background-color: #f4f7fb;
+      background-image: url('/bg.webp');
+      background-repeat: no-repeat;
+      background-position: right center;
+      background-size: cover;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1, h2, h3, label {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+    }
+
+    .main-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .blog {
+      width: 50%;
+      margin: 0 auto;
+      padding: 20px;
+      background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e0e0e0;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 8px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    #editor-container {
+      height: 200px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: white;
+      padding: 10px;
+    }
+
+    .blog-btn {
+      width: 150px;
+      margin-left: auto;
+      margin-right: auto;
+      display: block;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .blog-btn:hover {
+      background-color: #0056b3;
+    }
+
+    /* Responsive design for tablets and smaller devices */
+    @media (max-width: 768px) {
+      .blog {
+        width: 90%;
+      }
+    }
+
+    /* Full width on mobile screens */
+    @media (max-width: 576px) {
+      .blog {
+        width: 100%;
+      }
+    }
+  </style>
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/footer.css">
+</head>
+<body>
+  <%- include("./partials/nav") %>
+  
+  <div class="main-container">
+    <form class="blog" action="/blog/addBlog" method="POST" enctype="multipart/form-data">
+      
+      <h2>Create a New Blog</h2>
+
+      <div class="form-group">
+        <label for="coverImage" class="form-label">Cover Image</label>
+        <input type="file" class="form-control" id="coverImage" name="coverImage" accept="image/jpeg, image/jpg, image/png" aria-describedby="coverImage" required>
+      </div>
+
+      <div class="form-group">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" class="form-control" id="title" name="title" required>
+      </div>
+
+      <div class="form-group">
+        <label for="category" class="form-label">Category of Blog:</label>
+        <select name="category" id="category" class="form-control" required>
+          <!-- Category options -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="body" class="form-label">Add Details Here</label>
+        <div id="editor-container"></div>
+        <input type="hidden" id="body" name="body">
+      </div>
+
+      <button type="submit" class="btn btn-primary blog-btn">Submit</button>
+    </form>
+  </div>
+
+  <%- include("./partials/footer") %>
+  <%- include("./partials/script") %>
+  
+  <!-- Quill JS -->
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <script>
+    var quill = new Quill('#editor-container', {
+      theme: 'snow',
+      placeholder: 'Write your blog content here...',
+      modules: {
+        toolbar: [
+          [{ 'header': [1, 2, false] }],
+          ['bold', 'italic', 'underline'],
+          ['link', 'image'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          ['clean']
+        ]
+      }
+    });
+
+    document.querySelector('form').onsubmit = function() {
+      document.querySelector('#body').value = quill.root.innerHTML;
+    };
+  </script>
+</body>
+</html>

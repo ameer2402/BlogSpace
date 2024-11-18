@@ -1,0 +1,82 @@
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+  crossorigin="anonymous"
+  
+></script>
+<script src=
+"https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+    </script>
+    
+    <script src=
+"https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js">
+    </script>
+
+<script>
+    // Initializes input with a typeahead
+    var $input = $(".typeahead");
+    const sourceArray = [
+        "Personal",
+        "Professional",
+        "Travel",
+        "Health and Fitness",
+        "Tech",
+        "Food",
+        "Business and Finance",
+        "Educational",
+        "Fashion",
+        "Parenting",
+        "Entertainment",
+        "Do It Yourself",
+        "Photography",
+        "Sports",
+        "News",
+        "Gaming",
+        "Art and Design",
+        "Book",
+    ];
+
+    // Initialize typeahead with the source array
+    $input.typeahead({
+        source: sourceArray,
+        autoSelect: true,
+    });
+
+    // Listen for changes in the input field
+    $input.on('input', function () {
+        var inputVal = $input.val(); // Get input as typed by user
+        var lowerCaseInput = inputVal.toLowerCase(); // Convert to lowercase for matching
+
+        // Filter items based on lowercase input
+        var matches = sourceArray.filter(item => item.toLowerCase().includes(lowerCaseInput));
+
+        // Update the typeahead source with filtered matches
+        $input.data('bs.typeahead').source = matches;
+        $input.typeahead('lookup'); // Show the updated matches
+    });
+</script>
+
+<script>
+    // Show spinner
+    function showLoadingSpinner() {
+      document.getElementById("loadingSpinner").style.display = "flex";
+    }
+  
+    // Hide spinner after ensuring a minimum of 1 second
+    function hideLoadingSpinner() {
+      setTimeout(() => {
+        document.getElementById("loadingSpinner").style.display = "none";
+      }, 1000);
+    }
+  
+    // Initial display control
+    document.addEventListener("DOMContentLoaded", function () {
+      showLoadingSpinner();  // Show immediately on load
+      window.addEventListener("load", hideLoadingSpinner);  // Hide when page fully loads
+    });
+  </script>
+  
+  
+
+
+  

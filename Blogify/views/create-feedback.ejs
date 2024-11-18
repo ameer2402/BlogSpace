@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <title>Feedback</title>
+    <%- include("./partials/head") %>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="/css/footer.css">
+    <style>
+          body {
+            background: #EEEEEE;
+            font-family: 'Hind Siliguri', sans-serif;
+        }
+        .formcontainer {
+            display: flex;
+            justify-content: center;
+        }
+        .card {
+            width: 500px;
+            height: auto; /* Change to auto for responsive height */
+            border: none;
+            border-radius: 15px;
+        }
+        .adiv {
+            background: #7c4dff;
+            border-radius: 15px;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+            font-size: 25px;
+            height: 55px;
+        }
+        img {
+            margin-right: 10px;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+        }
+        .fas {
+            cursor: pointer;
+            color: #fff;
+        }
+        h6 {
+            font-size: 15px;
+            font-weight: bold;
+        }
+        small {
+            font-size: 15px;
+            color: #898989;
+        }
+        .feedback-form-control {
+            border: none;
+            background: #F6F7FB;
+            font-size: 15px;
+            width: 100%; /* Ensure it takes full width */
+            padding: 10px; /* Add some padding for better UX */
+            border-radius: 5px; /* Optional: make it look nicer */
+        }
+        .feedback-form-control:focus {
+            box-shadow: none;
+            background: #F6F7FB;
+        }
+        .feedback-form-control::placeholder {
+            font-size: 15px;
+            color: #B8B9BD;
+        }
+        /* Send Feedback Button with Fill Animation */
+        .feedback-btn {
+            background: #E6E6FA; /* Light purple background */
+            color: black; /* Initial text color */
+            padding: 10px 10px;
+            border: 2px solid #7c4dff; /* Purple border */
+            border-radius: 5px;
+            font-size: 15px;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        /* Darker purple fill effect on hover */
+        .feedback-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: #7c4dff; /* Full purple on hover */
+            transition: width 0.4s ease;
+            z-index: 0;
+        }
+        .feedback-btn:hover::before {
+            width: 100%;
+        }
+        /* Button text style */
+        .feedback-btn span {
+            position: relative;
+            z-index: 1;
+            color: black;
+            transition: color 0.3s ease;
+        }
+        /* Text color changes to white on hover */
+        .feedback-btn:hover span {
+            color: white;
+        }
+        /* Hover effect for emojis */
+        .emoji-icon {
+            margin-right: 10px;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .emoji-icon:hover {
+            transform: scale(1.2);
+        }
+        /* Selected emoji style */
+        .emoji-icon.selected {
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+        }
+        
+      </style>
+      
+</head>
+<body onload="hideLoadingSpinner()">
+    <%- include("./partials/nav") %>
+    <!-- Include the loading spinner -->
+    <%- include("./partials/spinner") %>
+    
+    <%- include("./feedback") %>
+    <%- include("./partials/footer") %>
+    <%- include("./partials/script") %>
+    <script>
+        // Function to handle emoji selection
+        function setRating(value, selectedEmoji) {
+            const ratingInput = document.getElementById("ratingInput");
+            if (ratingInput.value == value) {
+                ratingInput.value = "";
+                selectedEmoji.classList.remove('selected');
+            } else {
+                ratingInput.value = value;
+                const emojis = document.querySelectorAll('.emoji-icon');
+                emojis.forEach(emoji => emoji.classList.remove('selected'));
+                selectedEmoji.classList.add('selected');
+            }
+        }
+    
+        function showSubmitSpinner(event) {
+    event.preventDefault(); // Prevent immediate form submission
+    const submitButton = document.getElementById("submitButton");
+    const spinner = document.getElementById("submitSpinner");
+    const buttonText = document.getElementById("buttonText");
+
+    // Update button text to "Submitting..." and show the spinner
+    buttonText.textContent = "Submitting...";
+    spinner.style.display = "inline-block";
+
+    // Disable the submit button to prevent multiple submissions
+    submitButton.disabled = true;
+
+    // Delay form submission to allow the spinner to display briefly
+    setTimeout(() => {
+        document.getElementById("feedbackForm").submit(); // Submit the form after 1 second
+    }, 1000);
+}
+    </script>
+</body>
+
+
+
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Email Verification</title>
+    <%- include("./partials/head") %>
+    <link rel="stylesheet" href="/css/footer.css">
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .email-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .email-card {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 0px 5px 20px 0px #d2dae3;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .email-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        /* OTP Form Styles */
+        .otp-card {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .otp-form {
+            width: 100%;
+            max-width: 400px;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0px 5px 20px 0px #d2dae3;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .otp-form h6 {
+            font-size: 18px;
+            color: red;
+            margin-bottom: 20px;
+        }
+
+        .inputs input {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            margin: 5px;
+            font-size: 18px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .validate {
+            border-radius: 20px;
+            height: 40px;
+            background-color: red;
+            border: 1px solid red;
+            width: 140px;
+            color: white;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        /* Left side image styles */
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f4f4f4;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 767px) {
+            .email-card {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .otp-card {
+                width: 100%;
+                padding: 15px;
+            }
+
+        }
+
+        @media (min-width: 768px) {
+            .email-card {
+                flex-direction: row;
+                height: 70vh;
+            }
+
+            .otp-card {
+                width: 50%;
+            }
+
+            .image-container {
+                width: 50%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="/css/spinner.css">
+</head>
+<body  >
+    <!-- Include the loading spinner -->
+    <%- include("./partials/spinner") %>
+    <%- include("./partials/nav") %>
+
+    <!-- Main Container -->
+    <div class="email-container">
+        <!-- Header -->
+        <h2 class="email-header">Verify Your Email</h2>
+
+        <!-- Email Card -->
+        <div class="card shadow-sm email-card">
+            <!-- Left Side - Image Section (only on larger screens) -->
+            <div class="image-container">
+                <img src="/email-verification.png" alt="Verification Image" class="img-fluid rounded-start">
+            </div>
+
+            <!-- Right Side - OTP Form Section -->
+            <div class="otp-card">
+                <form action="/user/verify-otp" method="POST" class="otp-form">
+                    <h6>Please enter the one-time password <br> to verify your account</h6>
+                    <div><span>A code has been sent to</span> <small><%= locals.email.substring(0, 2) %>*****<%= locals.email.substring(locals.email.length - 12) %> </small></div>
+                    <div id="otp" class="inputs d-flex justify-content-center mt-2">
+                        <input type="text" name="otp[]" id="first" maxlength="1" required />
+                        <input type="text" name="otp[]" id="second" maxlength="1" required />
+                        <input type="text" name="otp[]" id="third" maxlength="1" required />
+                        <input type="text" name="otp[]" id="fourth" maxlength="1" required />
+                        <input type="text" name="otp[]" id="fifth" maxlength="1" required />
+                        <input type="text" name="otp[]" id="sixth" maxlength="1" required />
+                    </div>
+                    <div id="resend-timer-row" class="d-flex justify-content-center align-items-center mt-3">
+                        <button id="resend-btn" class="btn btn-sm btn-secondary me-2" disabled>Resend OTP</button>
+                        <span id="timer-display" class="text-muted">0:10</span>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-danger validate">Validate</button>
+                    </div>
+                </form>
+                  
+               
+            </div>
+            
+            
+        </div>
+    </div>
+
+    <%- include("./partials/footer") %>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <%- include("./partials/script") %>
+
+    <script>
+     
+        document.addEventListener("DOMContentLoaded", function(event) {
+            function OTPInput() {
+                const inputs = document.querySelectorAll('#otp > input');
+                for (let i = 0; i < inputs.length; i++) {
+                    inputs[i].addEventListener('input', function(event) {
+                        if (inputs[i].value && i < inputs.length - 1) {
+                            inputs[i + 1].focus();
+                        }
+                    });
+                    inputs[i].addEventListener('keydown', function(event) {
+                        if (event.key === "Backspace" && !inputs[i].value && i > 0) {
+                            inputs[i - 1].focus();
+                        }
+                    });
+                }
+            }
+            OTPInput();
+    
+            const resendBtn = document.getElementById("resend-btn");
+            const timerDisplay = document.getElementById("timer-display");
+            let timer = 10;
+    
+            function formatTimer(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+    
+            function startTimer() {
+                timer = 10; // Reset timer for next countdown
+                resendBtn.disabled = true;
+                const countdown = setInterval(() => {
+                    timer--;
+                    timerDisplay.textContent = formatTimer(timer);
+                    if (timer <= 0) {
+                        clearInterval(countdown);
+                        resendBtn.disabled = false;
+                    }
+                }, 1000);
+            }
+            function showLoadingSpinner() {
+        document.getElementById("loadingSpinner").style.display = "flex";
+    }
+
+    function hideLoadingSpinner() {
+            document.getElementById("loadingSpinner").style.display = "none";
+        
+    }
+    
+            resendBtn.addEventListener("click", async () => {
+                try {
+                    showLoadingSpinner(); // Show spinner on click
+                    resendBtn.disabled = true; // Disable immediately
+                    timerDisplay.textContent = formatTimer(timer);
+                    
+                    const response = await axios.post("/user/resend-otp", {
+                        email: "<%= locals.email %>"
+                    });
+                  
+    
+                    if (response.data.success) {
+                        startTimer(); // Start countdown immediately after OTP sent
+                    } else {
+                        alert("Failed to resend OTP. Please try again later.");
+                        resendBtn.disabled = false; // Reactivate if error
+                    }
+                } catch (error) {
+                    console.error("Error resending OTP:", error);
+                    resendBtn.disabled = false; // Reactivate if error
+                }
+                finally {
+        hideLoadingSpinner(); // Always hide spinner regardless of success or error
+    }
+            });
+    
+            startTimer(); // Start initial timer
+        });
+
+    </script>
+    
+</body>
+</html>

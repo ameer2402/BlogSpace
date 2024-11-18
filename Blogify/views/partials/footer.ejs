@@ -1,0 +1,85 @@
+<div class="footercontainer-fluid p-0 mt-5">
+    <!-- Footer -->
+    <footer class="text-center text-lg-start text-white" style="background-color: #1c2331;">
+        <!-- Section: Social media -->
+        <section class="d-flex justify-content-between p-4" style="background-color: #6351ce;">
+            <div class="me-5">
+                <span>Get connected with us on social networks:</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="d-flex">
+                    <a href="https://www.instagram.com/i_mr_khan.786/" class="text-white me-4 social-icon">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/mohammed-ameerkhan-22368626a/" class="text-white me-4 social-icon">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a href="https://github.com/ameer2402" class="text-white me-4 social-icon">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+                <% if (locals.user) { %>
+                    <!-- Feedback Button for Large Screens -->
+                    <a href="/user/create-feedback" class="btn btn-feedback ms-3 d-none d-lg-block">
+                        <span>Give Feedback</span>
+                    </a>
+                <% } %>
+            </div>
+        </section>
+
+        <!-- Section: Links -->
+        <section>
+            <div class="footercontainer text-center text-md-start mt-5">
+                <div class="row mt-3">
+                    <!-- About Column -->
+                    <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+                        <h6 class="text-uppercase fw-bold d-flex align-items-center justify-content-center justify-content-md-start">
+                            Blog Space
+                        </h6>
+                        <hr class="mb-4 mt-0 d-inline-block mx-auto" style="width: 60px; background-color: #7c4dff; height: 2px;" />
+                        <p>
+                            Join our community to read, write, and share stories that inspire and connect. Stay tuned, stay inspired!
+                        </p>
+                    </div>
+
+                    <!-- Navigation Links Column -->
+                    <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <h6 class="text-uppercase fw-bold">Navigation</h6>
+                        <hr class="mb-4 mt-0 d-inline-block mx-auto" style="width: 60px; background-color: #7c4dff; height: 2px;" />
+                        <p><a href="/" class="text-white footer-link">Home</a></p>
+                        <% if (locals.user) { %>
+                            <p><a href="/blog/addblog" class="text-white footer-link">Add Blog</a></p>
+                            <p><a href="/profile" class="text-white footer-link">Profile</a></p>
+                        <% } %>
+                    </div>
+
+                    <!-- Useful Links Column -->
+                    <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <h6 class="text-uppercase fw-bold">Useful Links</h6>
+                        <hr class="mb-4 mt-0 d-inline-block mx-auto" style="width: 60px; background-color: #7c4dff; height: 2px;" />
+                        <p><a href="/privacy" class="text-white footer-link">Privacy Policy</a></p>
+                        <p><a href="/terms" class="text-white footer-link">Terms & Conditions</a></p>
+                    </div>
+                </div>
+                <% if (locals.user) { %>
+                    <div class="text-center mt-4 d-lg-none">
+                        <button type="button" class="btn-feedback" onclick="openFeedbackModal()">
+                            <span>Give Feedback</span>
+                        </button>
+                    </div>
+                <% } %>
+            </div>
+        </section>
+
+        <!-- Copyright -->
+        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+            &copy; 2024 BlogSpace. All rights reserved.
+        </div>
+    </footer>
+</div>
+
+<script>
+    function openFeedbackModal() {
+        window.location.href = "/user/create-feedback";
+    }
+</script>

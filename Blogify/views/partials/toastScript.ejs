@@ -1,0 +1,38 @@
+<script>
+    // Pass the `toast` object directly to JavaScript in a format it can parse.
+    const toastData = <%- JSON.stringify(toast || {}) %>; // Make sure toast is either the object or an empty object
+    const toast = document.querySelector(".toast");
+    const closeIcon = document.querySelector(".close");
+    const progress = document.querySelector(".progress");
+
+    let timer1, timer2;
+
+    function showToast() {
+        if (!toast || !progress) return; // Ensure elements exist
+        toast.classList.add("active");
+        progress.classList.add("active");
+
+        timer1 = setTimeout(() => {
+            toast.classList.remove("active");
+        }, 5000);
+
+        timer2 = setTimeout(() => {
+            progress.classList.remove("active");
+        }, 5300);
+    }
+    if (closeIcon) {
+    closeIcon.addEventListener("click", () => {
+        if (toast) toast.classList.remove("active");
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+    });
+}
+
+    // Only trigger the toast if toastData has a message
+    if (toastData && toastData.message) {
+        setTimeout(
+            showToast()
+        ,1000);
+        
+    }
+</script>

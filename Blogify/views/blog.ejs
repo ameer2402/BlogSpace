@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("./partials/head") %>
+    <style>
+        body, html {
+            overflow-x: hidden;
+            
+        }
+        .comment-container {
+            max-width: 1000px; /* Prevents overflow */
+            margin: 0 auto; /* Centers the container */
+        }
+        .d-flex {
+            max-width: 100%;
+            overflow-wrap: break-word; /* Prevents text overflow */
+            align-items: flex-start; /* Align items to the start */
+        }
+        /* New CSS for circular images */
+        .profile-image {
+            width: 30px; /* Smaller width for the profile image */
+            height: 30px; /* Smaller height for the profile image */
+            border-radius: 50%; /* Make it circular */
+            object-fit: cover; /* Ensure the image covers the area without stretching */
+            flex-shrink: 0; /* Prevent the image from shrinking */
+            margin-right: 5px; /* Small space between image and text */
+        }
+        .blog-profile-image {
+            width: 60px; /* Slightly larger for the blog author image */
+            height: 60px; /* Match the height */
+            border-radius: 50%; /* Make it circular */
+            object-fit: cover; /* Ensure the image covers the area without stretching */
+        }
+        /* CSS for comment text and username */
+        .comment-text {
+            margin-left: 5px; /* Space between the image and the comment text */
+            font-size: 14px; /* Font size for comment */
+            line-height: 1.4; /* Line height for better readability */
+            display: flex; /* Use flexbox for vertical stacking */
+            flex-direction: column; /* Stack elements vertically */
+            max-width: calc(100% - 35px); /* Adjust width to fit within parent */
+        }
+        .comment-username {
+            font-size: 12px; /* Smaller font size for the username */
+            color: gray; /* Color for username */
+            font-weight: bold; /* Bold for emphasis */
+            margin-bottom: 2px; /* Space between username and comment content */
+        }
+        .comment-content {
+            margin-top: 2px; /* Space above the comment content */
+            white-space: pre-wrap; /* Preserve white space and wrap text */
+            word-wrap: break-word; /* Break long words to prevent overflow */
+            overflow-wrap: break-word; /* Additional support for long words */
+            line-height: 1.5; /* Increase line height for better paragraph spacing */
+        }
+        .author-link {
+            text-decoration: none;
+            color: inherit; /* Keep the text color the same */
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px; /* Add padding for better appearance */
+            border-radius: 20px; /* Curved box effect */
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+        
+        .author-link:hover {
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Adds shadow on hover */
+            transform: translateY(-2px); /* Slight upward movement on hover */
+            background-color: rgba(0, 0, 0, 0.05); /* Light background color for hover effect */
+        }
+        
+        .author-link:active {
+            transform: translateY(0); /* Returns to original position when clicked */
+        }
+        
+        .author-info {
+            font-weight: bolder;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/spinner.css">
+    
+</head>
+<body onload="hideLoadingSpinner()">
+    <!-- Include the loading spinner -->
+    <%- include("./partials/spinner") %>
+    <%- include("./partials/nav") %>
+    
+    <div class="container mt-3 text-center">
+        <h1><%= blog.title %></h1>
+        <!-- Set width to 80vw for the cover image -->
+        <img src="<%= blog.coverImage %>" alt="..." style="width: 70vw; max-height: 600px;">
+        <hr>
+        <pre style="white-space: pre-wrap; text-align: left;"><%= blog.body %></pre>
+    </div>
+    
+    <div class="container mt-4 author-info">
+        <a href="/blog/user/<%= blog.createdBy._id %>" class="author-link">
+            <img src="<%= blog.createdBy.profileImage %>" alt="Profile Picture" class="blog-profile-image" >
+            &nbsp;<%= blog.createdBy.name %>
+        </a>
+    </div>
+    
+    <div class="container">
+        <label for="comment" class="form-label mt-3" style="font-weight: bolder; font-size: 20px;"><%= comments.length %> Comments</label>
+    </div>
+    <% if (locals.user) { %>
+        <form class="mb-3 mt-2 container" method="POST" action="/blog/comment/<%= blog._id %>">
+            <input type="text" class="form-control border border-primary-subtle" id="comment" placeholder="Enter your Comment here" name="content">
+            <button type="submit" class="btn btn-primary mt-1">Add</button>
+        </form>
+    <% } %>
+    <% if (locals.comments.length>0) { %>
+        <div class="container p-4" style="background-color: black; color: white; border-radius: 10px;">
+            <% comments.forEach(comment => { %>
+                <div class="d-flex mb-3">
+                    <!-- Left side: Profile image -->
+                    <img src="<%= comment.createdBy.profileImage %>" alt="Profile Picture" class="profile-image">
+    
+                    <!-- Right side: Name and comment content -->
+                    <div class="comment-text">
+                        <span class="comment-username"><%= comment.createdBy.name %></span>
+                        <span class="comment-content"><%= comment.content %></span>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    <% } %>
+    <%- include("./partials/footer") %>
+    <%- include("./partials/script") %>
+   
+</body>
+</html>

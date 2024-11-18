@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Email Verification</title>
+    <%- include("./partials/head") %>
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/spinner.css">
+    <style>
+        /* Custom styles for the card layout */
+        .email-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .email-card {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 900px;
+            height: 60vh;
+            align-items: center;
+        }
+
+        /* Flexbox for row layout on larger screens */
+        @media (min-width: 768px) {
+            .email-card .row {
+                flex-direction: row;
+                height: 100%;
+            }
+        }
+
+        /* Card content styling */
+        .email-card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .email-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <%- include("./partials/nav") %>
+    <!-- Spinner Overlay (Initially Hidden) -->
+<div id="spinnerOverlay" class="spinner-overlay" style="display: none;">
+    <div class="loader"></div>
+</div>
+
+
+    <!-- Main Container -->
+    <div class="email-container">
+        <!-- Header -->
+        <h2 class="email-header">Verify Your Email</h2>
+
+        <!-- Email Card -->
+        <div class="card shadow-sm email-card">
+            <div class="row g-0">
+                <!-- Left Side - Image Section -->
+                <div class="col-md-6  d-md-block">
+                    <img src="/email-verification.png" alt="Verification Image" class="img-fluid rounded-start" style="height: 100%; width: 100%; object-fit: cover;">
+                </div>
+
+                <!-- Right Side - Form Section -->
+                <div class="col-md-6">
+                    <div class="email-card-body">
+                        <h5 class="card-title text-center">Check Email</h5>
+                        <form id="emailForm" method="POST" action="/check-mail">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email address</label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                                <div id="emailFeedback" class="invalid-feedback" style="display: none;">
+                                    User does not exist.
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Check</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include("./partials/footer") %>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <%- include("./partials/script") %>
+    <script>
+        document.getElementById("emailForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const email = document.getElementById("email").value;
+                    // Get the spinner overlay
+        const spinnerOverlay = document.getElementById("spinnerOverlay");
+          // Show the spinner overlay
+          spinnerOverlay.style.display = "flex"; // Show the overlay with the loader
+
+            try {
+                const response = await axios.post('/user/check-mail', { email });
+                const result = response.data;
+
+                const emailFeedback = document.getElementById("emailFeedback");
+                if (result.exists) {
+                    window.location.href = "/user/verify-otp";
+                    
+                } 
+                else{
+                    emailFeedback.style.display = "block";
+                    document.getElementById("email").classList.add("is-invalid");
+                }
+            } catch (error) {
+                console.error("Error checking email:", error);
+            }
+            finally {
+            // Hide the spinner overlay
+            spinnerOverlay.style.display = "none"; // Hide the spinner once the process is complete
+        }  
+
+        });
+    </script>
+</body>
+</html>
