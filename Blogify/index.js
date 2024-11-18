@@ -14,6 +14,7 @@ const {generateToken}=require("./services/authentication");
 const methodOverride = require('method-override');
 const mail=require("./routes/mails");
 const sendMail=require("./controllers/sendMail");
+const MongoStore = require('connect-mongo'); // Import MongoStore
 
 
 
@@ -48,13 +49,16 @@ app.use(methodOverride('_method'));
 
 
 app.use(session({
-    secret: process.env.secret_key,
+    secret: process.env.secret_key, // Secret key from .env
     resave: false,
     saveUninitialized: false, // Prevents session creation for unauthenticated users
-    cookie: { secure: false } // Set to true if you're using HTTPS
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URL, // Use your MongoDB URL here
+        collectionName: 'sessions', // Optional: Name of the session collection
+        ttl: 14 * 24 * 60 * 60, // Session TTL (14 days)
+    }),
+    cookie: { secure: process.env.NODE_ENV === 'production' } // Set secure cookies only in production
 }));
-app.use(passport.initialize());
-app.use(passport.session());
 
 // Routes
 app.get('/auth/google', passport.authenticate('google', {
