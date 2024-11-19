@@ -21,7 +21,7 @@ passport.deserializeUser((id, done) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.client_id, // Replace with your client ID
     clientSecret: process.env.client_secret, // Replace with your client secret
-    callbackURL: '/auth/google/callback',
+    callbackURL: 'https://blogspace-b8kj.onrender.com/auth/google/callback',
 }, (accessToken, refreshToken, profile, done) => {
     // Check if the user already exists in the database
     User.findOne({ email: profile.emails[0].value }).then((existingUser) => {
