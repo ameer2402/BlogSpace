@@ -29,15 +29,17 @@ passport.use(new GoogleStrategy({
             // If the user exists, simply return the user
             done(null, existingUser);
         } else {
-            
-                
-
+             // Get the profile image URL (ensure it is a complete URL)
+            let profileImageUrl = profile._json.picture;
+            if (profileImageUrl && !profileImageUrl.startsWith('https://')) {
+                profileImageUrl = `https://lh3.googleusercontent.com/${profileImageUrl}`;
+            }
                 // Create a new user with the hashed default password
                 new User({
                     name: profile.displayName,  // Store display name
                     email: profile.emails[0].value,  // Use the primary email
                     password: DEFAULT_PASSWORD,  // Set the hashed default password
-                    profileImage: profile._json.picture,  // Store the profile image
+                    profileImage: profileImageUrl,  // Store the profile image
                 }).save().then((newUser) => {
                     done(null, newUser);
                 }).catch(err => {
