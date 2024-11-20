@@ -11,22 +11,30 @@ const mail=require("../controllers/sendOTP");
 const sendOTP = require("../controllers/sendOTP");
 const OTP=require("../models/otp");
 const bcrypt = require('bcrypt');
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("cloudinary").v2;
 
 
 
 
 
 const router=Router();
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, path.resolve(`./public/profileImages`));
-    },
-    filename: function (req, file, cb) {
-      const filename=`${Date.now()}-${file.originalname}`;
-      cb(null, filename);
-    }
-  })
-  const upload = multer({ storage });
+
+cloudinary.config({
+  cloud_name: "dponix1sx",
+  api_key: "593597479536668",
+  api_secret: "XLAYdOkVG-9-vNEHO5jAio6cO0E",
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "profileImages",
+    allowed_formats: ["jpg", "jpeg", "png"],
+  },
+});
+
+const upload = multer({ storage });
 
 router.get("/signin",(req,res)=>{
   const toast = req.session.toast || null;
@@ -102,32 +110,64 @@ router.get("/setting",cookieValidation,async(req,res)=>{
     req.session.toast=null;
     // console.log(blog);
     return res.render("setting",{
-        user:req.user,
+        user:newUser,
         blogs:blog,
         profileImage:newUser.profileImage,
         toast,
     });
 })
 
-router.post('/upload-profile-image', cookieValidation,upload.single('profileImage'), (req, res) => {
-    const userId = req.user._id; // Assuming user is authenticated
-    const imagePath = `/profileImages/${req.file.filename}`;
-  
-    // Update user's profile image in the database
-    User.findByIdAndUpdate(userId, { profileImage: imagePath },{ new: true, runValidators: true })
-    
-    .then(updatedUser => {
-        if (!updatedUser) {
-          return res.status(404).send('User not found');
-        }
-        res.redirect('/user/setting');
-      })
-      .catch(error => {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
-      });
-     
-  });
+router.post("/upload-profile-image", cookieValidation, upload.single("profileImage"), async (req, res) => {
+  try {
+    const userId = req.user._id;
+    if (!req.file) {
+      req.session.toast = { status: "error", message: "No file uploaded!" };
+      return res.redirect("/user/setting");
+    }
+
+    const imagePath = req.file.path; // Cloudinary URL
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profileImage: imagePath },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).send("User not found");
+    }
+    router.post("/upload-profile-image", cookieValidation, upload.single("profileImage"), async (req, res) => {
+  try {
+    const userId = req.user._id;
+    if (!req.file) {
+      req.session.toast = { status: "error", message: "No file uploaded!" };
+      return res.redirect("/user/setting");
+    }
+
+    const imagePath = req.file.path; // Cloudinary URL
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profileImage: imagePath },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).send("User not found");
+    }
+    req.user.profileImage=updatedUser.profileImage;
+    res.redirect("/user/setting");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+   
+    res.redirect("/user/setting");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 
   router.post("/check-mail", async (req, res) => {
     const { email } = req.body;
