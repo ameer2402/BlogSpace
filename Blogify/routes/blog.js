@@ -5,38 +5,52 @@ const path=require("path");
 const Blog=require("../models/blog");
 const Comment=require("../models/comment");
 const User=require("../models/user");
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
  
 const route=Router();
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, path.resolve(`./public`));
-    },
-    filename: function (req, file, cb) {
-      const filename=`${Date.now()}-${file.originalname}`;
-      cb(null, filename);
-    }
-  })
+// Cloudinary configuration
+cloudinary.config({
+  cloud_name: "dponix1sx",
+  api_key: "593597479536668",
+  api_secret: "XLAYdOkVG-9-vNEHO5jAio6cO0E",
+});
+
+// Cloudinary storage configuration
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "blogify", // Folder name in Cloudinary
+    allowed_formats: ["jpg", "jpeg", "png"], // Accepted file formats
+  },
+});
+// const storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//       cb(null, path.resolve(`./public`));
+//     },
+//     filename: function (req, file, cb) {
+//       const filename=`${Date.now()}-${file.originalname}`;
+//       cb(null, filename);
+//     }
+//   })
 
 
-  const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/jpg','image/png'];
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);  // Accept the file
-    } else {
-      req.session.toast = { 
-        status: 'error', 
-        method: 'Invalid file type. Only JPG and JPEG are allowed.' 
-      };
-      cb(null, false);  // Reject the file
-    }
-  };
+  // const fileFilter = (req, file, cb) => {
+  //   const allowedTypes = ['image/jpeg', 'image/jpg','image/png'];
+  //   if (allowedTypes.includes(file.mimetype)) {
+  //     cb(null, true);  // Accept the file
+  //   } else {
+  //     req.session.toast = { 
+  //       status: 'error', 
+  //       method: 'Invalid file type. Only JPG and JPEG are allowed.' 
+  //     };
+  //     cb(null, false);  // Reject the file
+  //   }
+  // };
   
-  const upload = multer({ 
-    storage: storage,
-    fileFilter: fileFilter 
-  });
+  const upload = multer({ storage });
   
 
 route.get("/addBlog",cookieValidation,(req,res)=>{
@@ -82,7 +96,7 @@ route.post("/addBlog",cookieValidation,upload.single("coverImage"),async(req,res
       body,
       createdBy:req.user._id,
       category,
-      coverImage:`/${req.file.filename}`,
+      coverImage:req.file.path,
 
     })
     req.session.toast={status:"success",message:"Blog created Successfully"};
