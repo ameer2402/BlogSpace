@@ -117,13 +117,17 @@ app.post("/category",cookieValidation,async(req,res)=>{
   });
   })
 
-app.get("/terms",(req,res)=>{
-    res.render("terms");
-})
+ app.get("/terms", (req, res, next) => {
+    cookieValidation(req, res, () => {
+        res.render("terms", { user: req.user });
+    });
+});
 
-app.get("/privacy",(req,res)=>{
-    res.render("privacy");
-})
+app.get("/privacy", (req, res, next) => {
+    cookieValidation(req, res, () => {
+        res.render("privacy", { user: req.user });
+    });
+});
 
 app.use("/mail",cookieValidation,mail);
 
