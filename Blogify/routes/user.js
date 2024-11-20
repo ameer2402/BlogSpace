@@ -20,11 +20,13 @@ const cloudinary = require("cloudinary").v2;
 
 const router=Router();
 
+// Cloudinary configuration
 cloudinary.config({
-  cloud_name: "dponix1sx",
-  api_key: "593597479536668",
-  api_secret: "XLAYdOkVG-9-vNEHO5jAio6cO0E",
+  cloud_name: process.env.cloud_name,
+  api_key: process.env.cloud_key,
+  api_secret: process.env.cloud_secret,
 });
+
 
 const storage = new CloudinaryStorage({
   cloudinary,
