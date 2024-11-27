@@ -57,7 +57,7 @@ app.use(session({
         collectionName: 'sessions', // Optional: Name of the session collection
         ttl: 14 * 24 * 60 * 60, // Session TTL (14 days)
     }),
-    cookie: { secure: process.env.NODE_ENV === 'production' } // Set secure cookies only in production
+    cookie: { secure: true } // Set secure cookies only in production
 }));
 
 // Routes
