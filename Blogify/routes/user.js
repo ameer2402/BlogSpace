@@ -216,7 +216,7 @@ router.get("/check-mail",(req,res)=>{
 
 router.get("/verify-otp",(req,res)=>{
   const email=req.session.email;
-  console.log("email at verification":email);
+  console.log("email at verification",email);
 
   if(!email){
     return res.redirect("/user/check-mail");
