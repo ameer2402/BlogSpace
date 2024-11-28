@@ -1,4 +1,4 @@
-# **BlogSpace Application**
+![Screenshot 2024-11-28 170448](https://github.com/user-attachments/assets/79806c3e-720d-4bd5-85ac-26a1d430d51c)# **BlogSpace Application**
 
 ## **Introduction**
 
@@ -23,6 +23,12 @@
 - **User Access**:
   - Unauthenticated users can only view blogs.
   - Authenticated users can create, manage, and delete blogs.
+  - 
+  ![Screenshot 2024-11-28 170752](https://github.com/user-attachments/assets/b0499cb3-52b7-4f0c-a05c-bef265cadc14)
+
+![Screenshot 2024-11-28 170339](https://github.com/user-attachments/assets/2349b245-310f-4a6c-b344-839bc141af50)
+
+
  
 ### **Search Blogs**
 - **Search by Category**: Users can search for blogs based on specific categories (e.g., technology, lifestyle, etc.) for better content discovery.
@@ -35,9 +41,15 @@
 - **Blog Statistics**: View the number of blogs created and manage them via the settings page.
 - **Cloud Storage**: Profile pictures and blog images are stored on **Cloudinary**.
 
+![Screenshot 2024-11-28 170552](https://github.com/user-attachments/assets/9880c655-4dcd-42ad-bad1-5080cde6ddf9)
+
+
 ### **Feedback System**
 - **Email Notifications**: Using **Nodemailer**, users can send feedback and OTPs for password reset.
 - **Toast Notifications**: Session-based toast notifications for actions like login, signup, and feedback submission.
+  
+![Screenshot 2024-11-28 170448](https://github.com/user-attachments/assets/07f83ad1-1332-4038-a860-a3624d5a4c09)
+
 
 ### **Responsive Design**
 - The application is fully responsive, built with **Bootstrap** for a seamless user experience across devices.
