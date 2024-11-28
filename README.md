@@ -1,4 +1,4 @@
-![Screenshot 2024-11-28 170448](https://github.com/user-attachments/assets/79806c3e-720d-4bd5-85ac-26a1d430d51c)# **BlogSpace Application**
+ **BlogSpace Application**
 
 ## **Introduction**
 
