@@ -51,7 +51,7 @@ app.use(methodOverride('_method'));
 app.use(session({
     secret: process.env.secret_key, // Secret key from .env
     resave: false,
-    saveUninitialized: false, // Prevents session creation for unauthenticated users
+    saveUninitialized: true, // Prevents session creation for unauthenticated users
     store: MongoStore.create({
         mongoUrl: process.env.MONGO_URL, // Use your MongoDB URL here
         collectionName: 'sessions', // Optional: Name of the session collection
