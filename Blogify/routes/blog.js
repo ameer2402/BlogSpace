@@ -88,20 +88,37 @@ route.get("/user/:id",async(req,res)=>{
 
 
 
-route.post("/addBlog",cookieValidation,upload.single("coverImage"),async(req,res)=>{
-    const{title,body,category}=req.body;
-    
-    await Blog.create({
-      title,
-      body,
-      createdBy:req.user._id,
-      category,
-      coverImage:req.file.path,
+route.post("/addBlog", cookieValidation, upload.single("coverImage"), async (req, res) => {
+  const { title, body, category } = req.body;
+  console.log("Form Data:", req.body); // Log form data
+  console.log("File Data:", req.file); // Log file data
 
-    })
-    req.session.toast={status:"success",message:"Blog created Successfully"};
-    return res.redirect("/");
-})
+  if (!title || !body || !category || !req.file) {
+      req.session.toast = {
+          status: "error",
+          message: "All fields are required, and a valid image must be uploaded.",
+      };
+      return res.redirect("/blog/addBlog");
+  }
+
+  try {
+      await Blog.create({
+          title,
+          body,
+          createdBy: req.user._id,
+          category: category.toLowerCase(), // Normalize category
+          coverImage: req.file.path, // Cloudinary provides the URL
+      });
+
+      req.session.toast = { status: "success", message: "Blog created successfully!" };
+      return res.redirect("/");
+  } catch (error) {
+      console.error("Error creating blog:", error);
+      req.session.toast = { status: "error", message: "Failed to create blog. Please try again." };
+      return res.redirect("/blog/addBlog");
+  }
+});
+
 
 route.delete('/delete/:id',cookieValidation,async(req,res)=>{
   try {
