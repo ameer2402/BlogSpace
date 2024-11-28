@@ -116,8 +116,9 @@
   <%- include("./partials/nav") %>
   
   <div class="main-container">
-    <form class="blog" action="/blog/addBlog" method="POST" enctype="multipart/form-data">
+    <form class="blog" action="/blog/addBlog" method="POST" enctype="multipart/form-data" onsubmit="handleFormSubmit(event)">
       
+
       <h2>Create a New Blog</h2>
 
       <div class="form-group">
@@ -166,27 +167,64 @@
 
   <%- include("./partials/footer") %>
   <%- include("./partials/script") %>
+   <!-- Quill JS -->
+   <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+   <script>
+    let quill; // Declare quill in the global scope
   
-  <!-- Quill JS -->
-  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-  <script>
-    var quill = new Quill('#editor-container', {
-      theme: 'snow',
-      placeholder: 'Write your blog content here...',
-      modules: {
-        toolbar: [
-          [{ 'header': [1, 2, false] }],
-          ['bold', 'italic', 'underline'],
-          ['link', 'image'],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-          ['clean']
-        ]
-      }
+    document.addEventListener('DOMContentLoaded', function () {
+      console.log("DOM fully loaded and parsed");
+  
+      // Initialize Quill
+      quill = new Quill('#editor-container', {
+        theme: 'snow',
+        placeholder: 'Write your blog content here...',
+        modules: {
+          toolbar: [
+            [{ 'header': [1, 2, false] }],
+            ['bold', 'italic', 'underline'],
+            ['link', 'image'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['clean']
+          ]
+        }
+      });
     });
-
-    document.querySelector('form').onsubmit = function() {
-      document.querySelector('#body').value = quill.root.innerHTML;
-    };
+  
+    function handleFormSubmit(event) {
+      event.preventDefault(); // Prevent the form's default submission behavior
+      console.log("Form submitted");
+  
+       // Capture plain text content
+  const quillContent = quill.getText().trim(); // Gets plain text
+  
+      // Validate content
+      if ( quillContent === '') {
+        alert('Blog body cannot be empty. Please write some content.');
+        return;
+      }
+  
+      // Set Quill content to the hidden input
+      const hiddenInput = document.querySelector('#body');
+      hiddenInput.value = quillContent;
+  
+      console.log("Hidden input value set:", hiddenInput.value);
+  
+      // Simulate a form submission (e.g., log data to the console)
+      const title = document.querySelector('#title').value;
+      const category = document.querySelector('#category').value;
+      console.log("Form Data:");
+      console.log("Title:", title);
+      console.log("Category:", category);
+      console.log("Blog Content:", quillContent);
+  
+      // Uncomment to submit the form
+      event.target.submit();
+    }
   </script>
+  
+  
+ 
+  
 </body>
 </html>
