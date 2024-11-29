@@ -196,13 +196,14 @@
       console.log("Form submitted");
   
        // Capture plain text content
-  const quillContent = quill.getText().trim(); // Gets plain text
+ const quillContent = quill.root.innerHTML.trim(); // Gets HTML content
+
   
       // Validate content
-      if ( quillContent === '') {
-        alert('Blog body cannot be empty. Please write some content.');
-        return;
-      }
+  if (quillContent === '<p><br></p>' || quillContent === '') { // Quill's default empty state
+    alert('Blog body cannot be empty. Please write some content.');
+    return;
+  }
   
       // Set Quill content to the hidden input
       const hiddenInput = document.querySelector('#body');
