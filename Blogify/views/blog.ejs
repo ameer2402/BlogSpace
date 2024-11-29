@@ -78,6 +78,9 @@
             display: flex;
             align-items: center;
         }
+        .container h1{
+              font-weight: 700;
+            }
 
     </style>
     <link rel="stylesheet" href="/css/footer.css">
@@ -90,7 +93,7 @@
     <%- include("./partials/nav") %>
     
     <div class="container mt-3 >
-        <h1  class="text-center" style="font-family: ‘Aclonica’;text-align: center; font-weight: 700;" ><%= blog.title %></h1>
+        <h1  class="text-center" style="font-family: ‘Aclonica’;text-align: center;" ><%= blog.title %></h1>
      <div class="text-center">
         <img src="<%= blog.coverImage %>" alt="Cover Image" style="width: 70vw; max-height: 600px;">
     </div>
