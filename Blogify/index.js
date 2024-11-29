@@ -91,7 +91,7 @@ app.get('/auth/google/callback', passport.authenticate('google'), async (req, re
 
 
 app.get("/",cookieValidation,async(req,res)=>{
-    const allBlogs=await Blog.find({});
+    const allBlogs = await Blog.find({}).sort({ createdAt: -1 });
 
    
 
