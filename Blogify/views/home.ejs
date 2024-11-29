@@ -107,7 +107,7 @@
           <div class="card-body">
             <h5 class="card-title" style="font-weight: 700;"><%= blog.title %></h5>
             <p class="card-text">
-              <%= blog.body.length > 100 ? blog.body.substring(0, 100) + '...' : blog.body %>
+            <%- blog.body.length > 100 ? blog.body.substring(0, 100) + '...' : blog.body %>
             </p>
             <a href="/blog/<%= blog._id %>" class="btn custom-button">Read more</a>
           </div>
