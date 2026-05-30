@@ -132,33 +132,6 @@ Whether you're a **tech blogger**, **lifestyle writer**, or **professional conte
   <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%"/>
 </div>
 
-## 📸 Screenshots
-
-<div align="center">
-
-### 🏠 Home & Blog Feed
-<img src="https://github.com/user-attachments/assets/b0499cb3-52b7-4f0c-a05c-bef265cadc14" width="80%" alt="Home Page"/>
-
-<br/><br/>
-
-### ✍️ Blog Creation with Quill Editor
-<img src="https://github.com/user-attachments/assets/2349b245-310f-4a6c-b344-839bc141af50" width="80%" alt="Blog Creation"/>
-
-<br/><br/>
-
-### 👤 User Profile & Settings
-<img src="https://github.com/user-attachments/assets/9880c655-4dcd-42ad-bad1-5080cde6ddf9" width="80%" alt="Profile Page"/>
-
-<br/><br/>
-
-### 📧 Feedback & Email Notifications
-<img src="https://github.com/user-attachments/assets/07f83ad1-1332-4038-a860-a3624d5a4c09" width="80%" alt="Feedback System"/>
-
-</div>
-
-<div align="center">
-  <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%"/>
-</div>
 
 ## 🏗️ Architecture
 
