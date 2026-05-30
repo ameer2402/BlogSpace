@@ -39,16 +39,28 @@
         <div class="modern-card h-100 animate-fade-up delay-<%= delay %> position-relative">
           <div class="card-img-container">
              <span class="category-badge"><%= blog.category %></span>
+             <% if (locals.user) { %>
+               <% const isBookmarked = locals.user.bookmarks && locals.user.bookmarks.map(id => String(id)).includes(String(blog._id)); %>
+               <button class="bookmark-btn position-absolute border-0 rounded-circle bg-white text-muted d-flex align-items-center justify-content-center shadow-sm <%= isBookmarked ? 'bookmarked' : '' %>" 
+                       data-id="<%= blog._id %>" 
+                       style="top: 15px; left: 15px; z-index: 5; width: 36px; height: 36px; transition: all 0.2s;"
+                       onclick="event.stopPropagation(); toggleBookmark(this)">
+                 <i class="<%= isBookmarked ? 'fas' : 'far' %> fa-bookmark"></i>
+               </button>
+             <% } %>
              <img src="<%= blog.coverImage %>" class="card-img-top" alt="Blog Image" />
           </div>
           <div class="card-body p-4 d-flex flex-column">
             
-            <div class="blog-meta mt-1">
-               <div class="d-flex align-items-center">
+            <div class="blog-meta mt-1" style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+               <div class="d-flex align-items-center" style="min-width: 0; flex-grow: 1;">
                  <img src="<%= blog.createdBy.profileImage %>" class="meta-avatar me-2" alt="Author">
-                 <span class="fw-semibold text-dark" style="font-size: 0.85rem;"><%= blog.createdBy.name %></span>
+                 <span class="fw-semibold text-dark" style="font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= blog.createdBy.name %></span>
                </div>
-               <span class="text-muted" style="font-size: 0.75rem;"><i class="far fa-calendar-alt me-1"></i> <%= new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+               <div class="text-end" style="flex-shrink: 0; white-space: nowrap;">
+                 <span class="text-muted d-block" style="font-size: 0.72rem;"><i class="far fa-calendar-alt me-1"></i> <%= new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+                 <span class="text-muted d-inline-block mt-1" style="font-size: 0.72rem; font-weight: 500;"><i class="fas fa-bolt text-warning me-1"></i> <%= blog.readingTime %> min read • <i class="fas fa-heart text-danger me-1"></i> <%= blog.likes ? blog.likes.length : 0 %></span>
+               </div>
             </div>
 
             <h5 class="card-title text-dark mb-3" style="font-weight: 700; line-height: 1.4;"><%= blog.title %></h5>

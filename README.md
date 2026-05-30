@@ -128,6 +128,19 @@ Whether you're a **tech blogger**, **lifestyle writer**, or **professional conte
   </tr>
 </table>
 
+## 🚀 Production-Grade Upgrades (Recruiter-Friendly Highlights)
+
+The blogging platform has been enhanced with enterprise-level security, query optimization, and dynamic UI elements designed to demonstrate modern software engineering practices:
+
+*   **🛡️ Robust Data Validation & Input Sanitization (Security)**: Implemented strict request contract checks using **Zod schemas** to validate incoming parameters, combined with **sanitize-html** filters to prevent Cross-Site Scripting (XSS) attacks in posts and comments.
+*   **⚡ MongoDB Compound Text Search Indexing (Performance)**: Replaced slow regex-based database scanning with a Mongoose Text Search index over `title`, `body`, and `category`, ranking matches dynamically by relevance scores (`textScore`).
+*   **📊 User Analytics & Dashboard (System Design)**: Redesigned the user settings page into an **Interactive Analytics Board** powered by **Chart.js** displaying post category counts, aggregate likes, and comment threads.
+*   **🌙 Persistent Dark Mode Theme (UX)**: Added a local-storage persisted theme toggle utilizing CSS variables to prevent flash of unstyled content (FOUC).
+*   **💬 Threaded Nested Comments (Data Structures)**: Enhanced commenting logic to support infinite nested replies (`parentId` references) with dynamic toggling inline forms.
+*   **🔖 Saved Bookmarks List (UX/Engagement)**: Created a bookmarking model allowing users to save posts to a reading list.
+*   **🔍 AJAX Live Autocomplete search**: Built a debounced suggestions box that queries matching titles and categories live as you type.
+*   **🔗 Floating Share Widget**: Integrated floating social share buttons (X/Twitter, LinkedIn, WhatsApp) for easy link sharing.
+
 <div align="center">
   <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%"/>
 </div>
@@ -393,17 +406,17 @@ npm run dev
 
 ## 🗺️ Roadmap
 
-- [ ] 🌙 **Dark Mode** toggle
+- [x] 🌙 **Dark Mode** toggle
 - [ ] 🏷️ **Tags & Hashtags** for richer content discovery
-- [ ] 👍 **Like / Reaction System** on blogs
+- [x] 👍 **Like / Reaction System** on blogs
 - [ ] 🔔 **Real-time notifications** (Socket.io)
-- [ ] 🔍 **Full-text search** with MongoDB indexes
-- [ ] 📊 **Author Analytics Dashboard** (views, likes, comments)
+- [x] 🔍 **Full-text search** with MongoDB indexes
+- [x] 📊 **Author Analytics Dashboard** (views, likes, comments)
 - [ ] 🌐 **Multi-language Support** (i18n)
 - [ ] 🐳 **Docker Containerization** for easy deployment
 - [ ] 🚀 **Deploy on Vercel / Render** with CI/CD pipeline
-- [ ] 💬 **Nested replies** in comments
-- [ ] 🔖 **Bookmark / Save for later** feature
+- [x] 💬 **Nested replies** in comments
+- [x] 🔖 **Bookmark / Save for later** feature
 
 <div align="center">
   <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%"/>

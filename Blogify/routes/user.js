@@ -3,6 +3,7 @@ const User=require("../models/user");
 const multer = require('multer');
 const path=require("path");
 const { cookieValidation, requireAuth } = require("../middlewares/authentication");
+const { signupSchema, signinSchema, validateRequest } = require("../middlewares/validation");
 const{generateToken}=require("../services/authentication");
 const Blogs=require("../models/blog");
 const generateOTP=require("../controllers/GenerateOtp");
@@ -38,6 +39,17 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
+// Banner storage configuration for Cloudinary
+const bannerStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "profileBanners",
+    allowed_formats: ["jpg", "jpeg", "png"],
+  },
+});
+
+const uploadBanner = multer({ storage: bannerStorage });
+
 router.get("/signin",(req,res)=>{
   const toast = req.session.toast || null;
     req.session.toast = null; // Clear the toast after reading it
@@ -52,7 +64,7 @@ router.get("/signup",(req,res)=>{
       toast,
     });
  })
-router.post("/signup",async(req,res)=>{
+router.post("/signup", validateRequest(signupSchema), async(req,res)=>{
     const{name,email,password}=req.body;
     try{
     const newUser=await User.create({
@@ -79,7 +91,7 @@ router.post("/signup",async(req,res)=>{
 }
  })
 
- router.post('/signin', async (req, res) => {
+ router.post('/signin', validateRequest(signinSchema), async (req, res) => {
   const { email, password } = req.body;
   try {
     const user=await User.findOne({email});
@@ -107,12 +119,49 @@ router.post("/signup",async(req,res)=>{
 router.get("/setting", cookieValidation, requireAuth, async (req, res) => {
     try {
         const userid = req.user._id;
-        const newUser = await User.findById(userid);
+        const newUser = await User.findById(userid).populate({
+            path: 'bookmarks',
+            populate: { path: 'createdBy' }
+        });
         if (!newUser) {
             req.session.toast = { status: "error", message: "User not found." };
             return res.redirect("/");
         }
         const blog = await Blogs.find({ createdBy: userid }).populate("createdBy").lean();
+        
+        // Calculate reading time manually since lean() drops virtuals
+        blog.forEach(b => {
+            const wordsPerMinute = 200;
+            const cleanBody = b.body ? b.body.replace(/<[^>]*>/g, '') : '';
+            const words = cleanBody.split(/\s+/).filter(w => w.length > 0).length;
+            b.readingTime = Math.ceil(words / wordsPerMinute);
+        });
+
+        if (newUser.bookmarks) {
+            newUser.bookmarks.forEach(b => {
+                const wordsPerMinute = 200;
+                const cleanBody = b.body ? b.body.replace(/<[^>]*>/g, '') : '';
+                const words = cleanBody.split(/\s+/).filter(w => w.length > 0).length;
+                b.readingTime = Math.ceil(words / wordsPerMinute);
+            });
+        }
+        
+        // Calculate Analytics Metrics
+        const totalLikes = blog.reduce((acc, b) => acc + (b.likes ? b.likes.length : 0), 0);
+        
+        const blogIds = blog.map(b => b._id);
+        const CommentModel = require("../models/comment");
+        const totalComments = await CommentModel.countDocuments({ blogId: { $in: blogIds } });
+        
+        // Category distribution mapping
+        const categoryCounts = {};
+        blog.forEach(b => {
+            if (b.category) {
+                const cat = b.category.charAt(0).toUpperCase() + b.category.slice(1);
+                categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+            }
+        });
+        
         const toast = req.session.toast || null;
         req.session.toast = null;
         
@@ -120,6 +169,13 @@ router.get("/setting", cookieValidation, requireAuth, async (req, res) => {
             user: newUser,
             blogs: blog,
             profileImage: newUser.profileImage,
+            coverImage: newUser.coverImage || "",
+            bookmarks: newUser.bookmarks || [],
+            analytics: {
+                totalLikes,
+                totalComments,
+                categoryCounts
+            },
             toast,
         });
     } catch (error) {
@@ -157,6 +213,71 @@ router.post("/upload-profile-image", cookieValidation, requireAuth, upload.singl
     console.error("Error uploading profile image:", error);
     req.session.toast = { status: "error", message: "Internal Server Error during upload." };
     res.redirect("/user/setting");
+  }
+});
+
+router.post("/upload-cover-image", cookieValidation, requireAuth, uploadBanner.single("coverImage"), async (req, res) => {
+  try {
+    const userId = req.user._id;
+    if (!req.file) {
+      req.session.toast = { status: "error", message: "No file uploaded!" };
+      return res.redirect("/user/setting");
+    }
+
+    const imagePath = req.file.path; // Cloudinary URL
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { coverImage: imagePath },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+        req.session.toast = { status: "error", message: "User not found." };
+        return res.redirect("/user/setting");
+    }
+    
+    req.session.toast = { status: "success", message: "Profile cover banner updated successfully!" };
+    res.redirect("/user/setting");
+  } catch (error) {
+    console.error("Error uploading cover image:", error);
+    req.session.toast = { status: "error", message: "Internal Server Error during cover upload." };
+    res.redirect("/user/setting");
+  }
+});
+
+router.post("/bookmark/:blogId", cookieValidation, requireAuth, async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.blogId)) {
+      return res.status(400).json({ error: "Invalid Blog ID." });
+  }
+
+  try {
+      const userId = req.user._id;
+      const blogId = req.params.blogId;
+      const user = await User.findById(userId);
+      
+      if (!user) {
+          return res.status(404).json({ error: "User not found." });
+      }
+
+      if (!user.bookmarks) {
+          user.bookmarks = [];
+      }
+
+      const index = user.bookmarks.indexOf(blogId);
+      let bookmarked = false;
+
+      if (index === -1) {
+          user.bookmarks.push(blogId);
+          bookmarked = true;
+      } else {
+          user.bookmarks.splice(index, 1);
+      }
+
+      await user.save();
+      return res.json({ bookmarked });
+  } catch (error) {
+      console.error("Bookmark toggle error:", error);
+      return res.status(500).json({ error: "Internal server error." });
   }
 });
 

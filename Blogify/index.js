@@ -15,37 +15,24 @@ const methodOverride = require('method-override');
 const mail=require("./routes/mails");
 const MongoStore = require('connect-mongo');
 
-
-
-
-
-
-
 mongoose.connect(process.env.MONGO_URL)
 .then(()=>{
     console.log("mongodb connected");
-})
+});
 
 const PORT=process.env.PORT || 5001;
 const app=express();
  
-
 app.set("view engine","ejs");
 app.set("views", path.resolve(__dirname, "views"));
 
-
-
-// app.use(express.static(path.resolve("./public")));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use('/profileImages', express.static(path.join(__dirname, 'public/profileImages')));
 
-
 app.use(cookieparser());
-
 app.use(express.urlencoded({extended:false}));
 app.use(methodOverride('_method'));
-
 
 app.use(session({
     secret: process.env.secret_key, // Secret key from .env
@@ -56,7 +43,6 @@ app.use(session({
         collectionName: 'sessions', // Optional: Name of the session collection
         ttl: 14 * 24 * 60 * 60, // Session TTL (14 days)
     }),
-    
 }));
 
 // Routes
@@ -79,19 +65,23 @@ app.get('/auth/google/callback', passport.authenticate('google'), async (req, re
             req.session.toast = { status: 'success', message: 'Welcome back!' };
             return res.redirect('/');
         }
-
     } catch (error) {
         console.error('Error in callback:', error);
         res.redirect('/user/signup');
     }
 });
 
-
-
-
 app.get("/", cookieValidation, async(req, res) => {
     try {
         const allBlogs = await Blog.find({}).sort({ createdAt: -1 }).populate("createdBy").lean();
+
+        // Calculate reading time manually since lean() drops virtuals
+        allBlogs.forEach(blog => {
+            const wordsPerMinute = 200;
+            const cleanBody = blog.body ? blog.body.replace(/<[^>]*>/g, '') : '';
+            const words = cleanBody.split(/\s+/).filter(w => w.length > 0).length;
+            blog.readingTime = Math.ceil(words / wordsPerMinute);
+        });
 
         const toast = req.session.toast || null;
         req.session.toast = null;
@@ -116,15 +106,19 @@ app.post("/search", cookieValidation, async(req, res) => {
             return res.redirect("/");
         }
 
-        const regex = new RegExp(query, 'i'); // Case-insensitive match
+        // Search utilizing the MongoDB Text Search index on title, body, and category
+        const allBlogs = await Blog.find(
+            { $text: { $search: query } },
+            { score: { $meta: "textScore" } }
+        ).sort({ score: { $meta: "textScore" } }).populate("createdBy").lean();
         
-        const allBlogs = await Blog.find({
-            $or: [
-                { title: { $regex: regex } },
-                { category: { $regex: regex } },
-                { body: { $regex: regex } }
-            ]
-        }).sort({ createdAt: -1 }).populate("createdBy").lean();
+        // Calculate reading time manually since lean() drops virtuals
+        allBlogs.forEach(blog => {
+            const wordsPerMinute = 200;
+            const cleanBody = blog.body ? blog.body.replace(/<[^>]*>/g, '') : '';
+            const words = cleanBody.split(/\s+/).filter(w => w.length > 0).length;
+            blog.readingTime = Math.ceil(words / wordsPerMinute);
+        });
         
         return res.render("home", {
           user: req.user,
@@ -138,7 +132,7 @@ app.post("/search", cookieValidation, async(req, res) => {
     }
 });
 
- app.get("/terms", (req, res, next) => {
+app.get("/terms", (req, res, next) => {
     cookieValidation(req, res, () => {
         res.render("terms", { user: req.user });
     });
@@ -151,7 +145,6 @@ app.get("/privacy", (req, res, next) => {
 });
 
 app.use("/mail",cookieValidation,mail);
-
 app.use("/blog",blogRouter);
 app.use("/user",router);
 

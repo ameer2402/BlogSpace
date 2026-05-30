@@ -402,3 +402,324 @@ body {
 @keyframes progress {
   100% { right: 100%; }
 }
+
+/* ==========================================================================
+   🌙 DARK THEME STYLING
+   ========================================================================== */
+html.dark-theme {
+  --bg-color: #0b0f19;
+  --surface-color: rgba(17, 24, 39, 0.85);
+  --surface-solid: #111827;
+  
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --text-light: #6b7280;
+  
+  --border-color: #1f2937;
+  --border-light: rgba(255, 255, 255, 0.05);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+html.dark-theme body {
+  color: var(--text-main);
+}
+
+html.dark-theme .nav-link,
+html.dark-theme .navbar-brand,
+html.dark-theme .dropdown-toggle span,
+html.dark-theme .dropdown-item,
+html.dark-theme h1, html.dark-theme h2, html.dark-theme h3, html.dark-theme h4, html.dark-theme h5, html.dark-theme h6,
+html.dark-theme th, html.dark-theme td, html.dark-theme label {
+  color: var(--text-main) !important;
+}
+
+html.dark-theme #theme-toggle {
+  color: var(--text-main) !important;
+}
+
+html.dark-theme .dropdown-item:hover {
+  background-color: rgba(99, 102, 241, 0.2) !important;
+}
+
+html.dark-theme .glass-nav {
+  background: rgba(11, 15, 25, 0.8) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+html.dark-theme .dropdown-menu {
+  background-color: var(--surface-solid) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+html.dark-theme .form-control, html.dark-theme .form-select {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f3f4f6;
+}
+
+html.dark-theme .form-control:focus, html.dark-theme .form-select:focus {
+  background-color: #1e293b;
+  color: #fff;
+}
+
+html.dark-theme .card, html.dark-theme .modern-card {
+  background-color: var(--surface-solid);
+  border-color: var(--border-color);
+}
+
+html.dark-theme .text-dark {
+  color: var(--text-main) !important;
+}
+
+html.dark-theme .text-muted {
+  color: var(--text-muted) !important;
+}
+
+html.dark-theme .bg-white {
+  background-color: var(--surface-solid) !important;
+}
+
+html.dark-theme .bg-light {
+  background-color: #1e293b !important;
+}
+
+html.dark-theme hr {
+  background-color: #334155;
+  color: #334155;
+  opacity: 0.3;
+}
+
+/* ==========================================================================
+   ✨ PREMIUM COMPONENT STYLING
+   ========================================================================== */
+
+/* 1. Scroll Progress Bar */
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  width: 0%;
+  z-index: 9999;
+  transition: width 0.05s ease;
+}
+
+/* 2. Heart Reaction Button */
+.like-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.15rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+}
+.like-btn.liked {
+  color: var(--accent-color);
+}
+.like-btn:hover {
+  transform: scale(1.15);
+}
+.liked-bounce {
+  animation: heartBounce 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes heartBounce {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.4); }
+  70% { transform: scale(0.85); }
+  100% { transform: scale(1); }
+}
+
+/* 3. Bookmarks Button */
+.bookmark-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.15rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.bookmark-btn.bookmarked {
+  color: #fbbf24; /* Amber star/bookmark */
+}
+
+/* 4. Autocomplete Dropdown List */
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--surface-solid);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 2000;
+  display: none;
+}
+.autocomplete-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+  transition: background 0.2s ease;
+  display: block;
+  text-decoration: none;
+}
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+.autocomplete-item:hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--primary-color) !important;
+}
+
+/* 5. Floating Social Share Bar */
+.floating-share-bar {
+  position: fixed;
+  left: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  z-index: 1000;
+}
+.share-icon-btn {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: var(--surface-solid);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+}
+.share-icon-btn:hover {
+  transform: scale(1.15) rotate(5deg);
+  color: white;
+  box-shadow: var(--shadow-lg);
+}
+.share-twitter:hover { background-color: #1b1b1b; } /* X / Twitter style */
+.share-linkedin:hover { background-color: #0077b5; }
+.share-whatsapp:hover { background-color: #25d366; }
+.share-link:hover { background-color: var(--primary-color); }
+@media (max-width: 992px) {
+  .floating-share-bar {
+    position: static;
+    transform: none;
+    flex-direction: row;
+    justify-content: center;
+    margin: 2rem 0 1rem 0;
+  }
+}
+
+/* 6. Profile Banner / Cover Photo */
+.profile-banner-container {
+  height: 220px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--primary-light);
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: -60px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+}
+.banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: opacity 0.3s ease;
+  font-weight: 600;
+}
+.profile-banner-container:hover .banner-overlay {
+  opacity: 1;
+}
+
+/* 7. Threaded Nested Comments */
+.comment-thread {
+  border-left: 2px solid var(--border-color);
+  padding-left: 1.25rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.comment-card {
+  background: var(--surface-solid);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 0.75rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+.comment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.reply-btn {
+  font-size: 0.8rem;
+  color: var(--primary-color);
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.reply-btn:hover {
+  text-decoration: underline;
+}
+.reply-form-container {
+  display: none;
+  margin-top: 0.75rem;
+}
+
+/* 8. Analytics Board Upgrades */
+.kpi-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.kpi-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+.chart-container {
+  position: relative;
+  margin: auto;
+  height: 300px;
+  width: 100%;
+}
+.nav-pills .nav-link-custom {
+  color: var(--text-muted);
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  padding: 0.5rem 1.5rem;
+  transition: all 0.3s ease;
+}
+.nav-pills .nav-link-custom.active {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: white !important;
+  box-shadow: var(--shadow-md);
+}
+

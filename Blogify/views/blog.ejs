@@ -55,15 +55,35 @@
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
+    <div id="scroll-progress"></div>
     <%- include("./partials/nav") %>
     
     <% if (toast && toast.message) { %>
         <%- include("./partials/toast") %>
     <% } %>
 
+    <!-- Floating Social Share Panel -->
+    <div class="floating-share-bar">
+        <button class="share-icon-btn share-twitter" onclick="sharePost('twitter')" title="Share on X/Twitter">
+            <i class="fab fa-twitter"></i>
+        </button>
+        <button class="share-icon-btn share-linkedin" onclick="sharePost('linkedin')" title="Share on LinkedIn">
+            <i class="fab fa-linkedin-in"></i>
+        </button>
+        <button class="share-icon-btn share-whatsapp" onclick="sharePost('whatsapp')" title="Share on WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+        </button>
+        <button class="share-icon-btn share-link" onclick="sharePost('copy')" title="Copy Link">
+            <i class="fas fa-link"></i>
+        </button>
+    </div>
+
     <main class="flex-grow-1 container mt-4 animate-fade-up">
         <article class="mx-auto" style="max-width: 800px;">
             <header class="text-center mb-4">
+                <div class="text-muted fs-6 mb-2" style="font-weight: 500;">
+                    <i class="fas fa-bolt text-warning me-1"></i> <%= blog.readingTime %> min read
+                </div>
                 <h1 class="blog-header"><%= blog.title %></h1>
                 
                 <div class="d-flex justify-content-center mt-4 mb-2">
@@ -85,12 +105,26 @@
                 <%- blog.body %>
             </div>
 
-            <hr class="my-5" style="border-color: var(--border-color);">
+            <!-- Reaction Buttons (Likes & Bookmarks) -->
+            <div class="d-flex align-items-center justify-content-center gap-3 my-5 border-top border-bottom py-3">
+                <% const hasLiked = locals.user && blog.likes && blog.likes.map(id => String(id)).includes(String(locals.user._id)); %>
+                <button class="like-btn <%= hasLiked ? 'liked' : '' %>" id="blog-like-btn" data-id="<%= blog._id %>">
+                    <i class="<%= hasLiked ? 'fas' : 'far' %> fa-heart fs-4"></i>
+                    <span id="likes-count" class="fw-bold"><%= blog.likes ? blog.likes.length : 0 %></span> Likes
+                </button>
+                
+                <% if (locals.user) { %>
+                    <% const isBookmarked = locals.user.bookmarks && locals.user.bookmarks.map(id => String(id)).includes(String(blog._id)); %>
+                    <button class="bookmark-btn <%= isBookmarked ? 'bookmarked' : '' %> ms-3" id="blog-bookmark-btn" data-id="<%= blog._id %>">
+                        <i class="<%= isBookmarked ? 'fas' : 'far' %> fa-bookmark fs-4"></i> Bookmark
+                    </button>
+                <% } %>
+            </div>
 
             <section class="comments-section mb-5">
                 <h3 class="fw-bold mb-4 d-flex align-items-center gap-2">
                     <i class="fas fa-comments text-primary"></i> 
-                    <%= comments.length %> Comments
+                    Comments
                 </h3>
 
                 <% if (locals.user) { %>
@@ -109,17 +143,53 @@
                     </div>
                 <% } %>
 
-                <% if (locals.comments.length > 0) { %>
+                <% if (locals.comments && locals.comments.length > 0) { %>
                     <div class="comments-list">
-                        <% comments.forEach(comment => { %>
-                            <div class="d-flex gap-3 mb-3">
-                                <img src="<%= comment.createdBy.profileImage %>" alt="Profile" class="rounded-circle object-fit-cover shadow-sm mt-1" width="40" height="40">
-                                <div class="comment-bubble flex-grow-1">
-                                    <div class="fw-bold fs-6 text-dark mb-1"><%= comment.createdBy.name %></div>
-                                    <div class="text-muted" style="white-space: pre-wrap; font-size: 0.95rem;"><%= comment.content %></div>
+                        <% function renderComments(commentList) { %>
+                            <% commentList.forEach(comment => { %>
+                                <div class="d-flex gap-3 mb-3 flex-column">
+                                    <div class="d-flex gap-3">
+                                        <img src="<%= comment.createdBy.profileImage %>" alt="Profile" class="rounded-circle object-fit-cover shadow-sm mt-1" width="40" height="40">
+                                        <div class="comment-card flex-grow-1">
+                                            <div class="fw-bold fs-6 text-dark mb-1"><%= comment.createdBy.name %></div>
+                                            <div class="text-muted" style="white-space: pre-wrap; font-size: 0.95rem;"><%= comment.content %></div>
+                                            
+                                            <% if (locals.user) { %>
+                                                <div class="mt-2 text-start">
+                                                    <span class="reply-btn" onclick="toggleReplyForm('<%= comment._id %>')">
+                                                        <i class="fas fa-reply"></i> Reply
+                                                    </span>
+                                                </div>
+                                                
+                                                <!-- Reply Form -->
+                                                <div class="reply-form-container" id="reply-form-<%= comment._id %>">
+                                                    <form class="mt-2" method="POST" action="/blog/comment/<%= blog._id %>">
+                                                        <input type="hidden" name="parentId" value="<%= comment._id %>">
+                                                        <div class="mb-2">
+                                                            <textarea class="form-control" placeholder="Write a reply..." name="content" rows="2" style="font-size: 0.85rem;" required></textarea>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary-custom btn-sm px-3 py-1" style="font-size: 0.8rem;">Reply</button>
+                                                    </form>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Nested Replies -->
+                                    <% if (comment.replies && comment.replies.length > 0) { %>
+                                        <div class="comment-thread">
+                                            <% renderComments(comment.replies) %>
+                                        </div>
+                                    <% } %>
                                 </div>
-                            </div>
-                        <% }) %>
+                            <% }) %>
+                        <% } %>
+                        
+                        <% renderComments(comments) %>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-4 text-muted">
+                        <i class="far fa-comment-dots fs-3 mb-2 d-block"></i> No comments yet. Share your thoughts!
                     </div>
                 <% } %>
             </section>
@@ -129,5 +199,102 @@
     <%- include("./partials/footer") %>
     <%- include("./partials/script") %>
     <%- include("./partials/toastScript") %>
+
+    <script>
+        // Scroll progress bar
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            if (docHeight > 0) {
+                const scrolled = (window.scrollY / docHeight) * 100;
+                document.getElementById('scroll-progress').style.width = scrolled + '%';
+            }
+        });
+
+        // Toggle reply form visibility
+        function toggleReplyForm(commentId) {
+            const form = document.getElementById(`reply-form-${commentId}`);
+            if (form) {
+                form.style.display = form.style.display === 'block' ? 'none' : 'block';
+            }
+        }
+
+        // AJAX Likes Toggling
+        const likeBtn = document.getElementById('blog-like-btn');
+        const likesCountSpan = document.getElementById('likes-count');
+        if (likeBtn) {
+            likeBtn.addEventListener('click', () => {
+                const blogId = likeBtn.getAttribute('data-id');
+                fetch(`/blog/like/${blogId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const icon = likeBtn.querySelector('i');
+                    if (data.liked) {
+                        likeBtn.classList.add('liked');
+                        icon.className = 'fas fa-heart fs-4 liked-bounce';
+                        setTimeout(() => icon.classList.remove('liked-bounce'), 450);
+                    } else {
+                        likeBtn.classList.remove('liked');
+                        icon.className = 'far fa-heart fs-4';
+                    }
+                    likesCountSpan.textContent = data.likesCount;
+                })
+                .catch(err => console.error("Error liking blog:", err));
+            });
+        }
+
+        // AJAX Bookmarks Toggling from Post
+        const bookmarkBtn = document.getElementById('blog-bookmark-btn');
+        if (bookmarkBtn) {
+            bookmarkBtn.addEventListener('click', () => {
+                const blogId = bookmarkBtn.getAttribute('data-id');
+                fetch(`/user/bookmark/${blogId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const icon = bookmarkBtn.querySelector('i');
+                    if (data.bookmarked) {
+                        bookmarkBtn.classList.add('bookmarked');
+                        icon.className = 'fas fa-bookmark fs-4';
+                    } else {
+                        bookmarkBtn.classList.remove('bookmarked');
+                        icon.className = 'far fa-bookmark fs-4';
+                    }
+                })
+                .catch(err => console.error("Error bookmarking blog:", err));
+            });
+        }
+
+        // Social sharing utility
+        function sharePost(platform) {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent("<%= blog.title %>");
+            let shareUrl = '';
+            
+            switch (platform) {
+                case 'twitter':
+                    shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+                    window.open(shareUrl, '_blank');
+                    break;
+                case 'linkedin':
+                    shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+                    window.open(shareUrl, '_blank');
+                    break;
+                case 'whatsapp':
+                    shareUrl = `https://api.whatsapp.com/send?text=${title}%20${url}`;
+                    window.open(shareUrl, '_blank');
+                    break;
+                case 'copy':
+                    navigator.clipboard.writeText(window.location.href)
+                        .then(() => alert("Post link copied to clipboard!"))
+                        .catch(err => console.error("Clipboard copy failed:", err));
+                    break;
+            }
+        }
+    </script>
 </body>
 </html>

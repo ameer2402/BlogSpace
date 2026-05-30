@@ -76,6 +76,88 @@
     });
   </script>
   
+  <script>
+    // AJAX Bookmark Toggler
+    function toggleBookmark(button) {
+      const blogId = button.getAttribute('data-id');
+      if (!blogId) return;
+
+      fetch(`/user/bookmark/${blogId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const icon = button.querySelector('i');
+        if (data.bookmarked) {
+          button.classList.add('bookmarked');
+          icon.className = 'fas fa-bookmark';
+        } else {
+          button.classList.remove('bookmarked');
+          icon.className = 'far fa-bookmark';
+        }
+      })
+      .catch(err => console.error('Error bookmarking:', err));
+    }
+
+    // AJAX Search Autocomplete setup
+    document.addEventListener('DOMContentLoaded', () => {
+      const setupAutocomplete = (inputId, dropdownId) => {
+        const input = document.getElementById(inputId);
+        const dropdown = document.getElementById(dropdownId);
+        if (!input || !dropdown) return;
+
+        let debounceTimer;
+
+        input.addEventListener('input', () => {
+          clearTimeout(debounceTimer);
+          const query = input.value.trim();
+
+          if (query.length < 2) {
+            dropdown.style.display = 'none';
+            dropdown.innerHTML = '';
+            return;
+          }
+
+          debounceTimer = setTimeout(() => {
+            fetch(`/blog/api/search-autocomplete?q=${encodeURIComponent(query)}`)
+              .then(res => res.json())
+              .then(data => {
+                if (data.length === 0) {
+                  dropdown.style.display = 'none';
+                  dropdown.innerHTML = '';
+                  return;
+                }
+
+                dropdown.innerHTML = data.map(item => `
+                  <a href="/blog/${item._id}" class="autocomplete-item">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <strong style="font-size: 0.9rem;">${item.title}</strong>
+                      <span class="badge bg-light text-primary text-uppercase" style="font-size: 0.6rem;">${item.category}</span>
+                    </div>
+                  </a>
+                `).join('');
+                dropdown.style.display = 'block';
+              })
+              .catch(err => console.error('Autocomplete error:', err));
+          }, 250);
+        });
+
+        // Hide when clicking outside
+        document.addEventListener('click', (e) => {
+          if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+          }
+        });
+      };
+
+      setupAutocomplete('navbar-search-desktop', 'autocomplete-results-desktop');
+      setupAutocomplete('navbar-search-mobile', 'autocomplete-results-mobile');
+    });
+  </script>
+  
   
 
 

@@ -23,6 +23,14 @@ const userSchema=new Schema({
         type:String,
         default:`/profileImages/default_profile.jpg`,
     },
+    bookmarks:[{
+        type:Schema.Types.ObjectId,
+        ref:"blog",
+    }],
+    coverImage:{
+        type:String,
+        default:"",
+    },
 
 },{timestamps:true});
 

@@ -1,6 +1,8 @@
 const { Router } = require("express");
 const mongoose = require("mongoose");
 const { cookieValidation, requireAuth } = require("../middlewares/authentication");
+const { blogSchema, commentSchema, validateRequest } = require("../middlewares/validation");
+const sanitizeHtml = require("sanitize-html");
 const multer = require("multer");
 const path = require("path");
 const Blog = require("../models/blog");
@@ -51,14 +53,32 @@ route.get("/:id", cookieValidation, async (req, res) => {
             return res.redirect("/");
         }
 
+        // Calculate reading time manually since lean() drops virtuals
+        const wordsPerMinute = 200;
+        const cleanBody = blog.body ? blog.body.replace(/<[^>]*>/g, '') : '';
+        const words = cleanBody.split(/\s+/).filter(w => w.length > 0).length;
+        blog.readingTime = Math.ceil(words / wordsPerMinute);
+
         const comments = await Comment.find({ blogId: req.params.id }).populate("createdBy").lean();
+        
+        // Helper function to build threaded comment tree
+        const buildCommentTree = (list, parentId = null) => {
+            return list
+                .filter(c => String(c.parentId || '') === String(parentId || ''))
+                .map(c => ({
+                    ...c,
+                    replies: buildCommentTree(list, c._id)
+                }));
+        };
+
+        const commentTree = buildCommentTree(comments);
         const toast = req.session.toast || null;
         req.session.toast = null;
         
         return res.render("blog", {
           user: req.user,
           blog,
-          comments,
+          comments: commentTree,
           toast,
         });
     } catch (error) {
@@ -98,21 +118,32 @@ route.get("/user/:id", cookieValidation, async (req, res) => {
   }
 });
 
-route.post("/addBlog", cookieValidation, requireAuth, upload.single("coverImage"), async (req, res) => {
+route.post("/addBlog", cookieValidation, requireAuth, upload.single("coverImage"), validateRequest(blogSchema), async (req, res) => {
   const { title, body, category } = req.body;
 
-  if (!title || !body || !category || !req.file) {
+  if (!req.file) {
       req.session.toast = {
           status: "error",
-          message: "All fields are required, and a valid image must be uploaded.",
+          message: "A valid cover image must be uploaded.",
       };
       return res.redirect("/blog/addBlog");
   }
 
   try {
+      // Strict sanitization: Strip script/style threats but allow rich-text tags
+      const cleanTitle = sanitizeHtml(title, { allowedTags: [], allowedAttributes: {} });
+      const cleanBody = sanitizeHtml(body, {
+          allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'h1', 'h2', 'pre', 'code', 'span', 'p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li']),
+          allowedAttributes: {
+              ...sanitizeHtml.defaults.allowedAttributes,
+              '*': ['style', 'class'],
+              'img': ['src', 'alt', 'width', 'height']
+          }
+      });
+
       await Blog.create({
-          title,
-          body,
+          title: cleanTitle,
+          body: cleanBody,
           createdBy: req.user._id,
           category: category.toLowerCase(), 
           coverImage: req.file.path, 
@@ -141,7 +172,7 @@ route.delete('/delete/:id', cookieValidation, requireAuth, async (req, res) => {
         return res.redirect('/user/setting');
     }
     
-    req.session.toast = { status: "success", message: "Blog deleted successfully." }; // Fixed 'method' to 'message'
+    req.session.toast = { status: "success", message: "Blog deleted successfully." }; 
     res.redirect('/user/setting');
   } catch (err) {
     console.error("Error deleting blog:", err);
@@ -150,17 +181,21 @@ route.delete('/delete/:id', cookieValidation, requireAuth, async (req, res) => {
   }
 });
 
-route.post("/comment/:blogId", cookieValidation, requireAuth, async (req, res) => {
+route.post("/comment/:blogId", cookieValidation, requireAuth, validateRequest(commentSchema), async (req, res) => {
    if (!mongoose.Types.ObjectId.isValid(req.params.blogId)) {
        req.session.toast = { status: "error", message: "Invalid Blog ID." };
        return res.redirect("/");
    }
 
    try {
+       // Sanitize the comment content for basic security
+       const cleanContent = sanitizeHtml(req.body.content, { allowedTags: [], allowedAttributes: {} });
+
        await Comment.create({
-          content: req.body.content,
+          content: cleanContent,
           blogId: req.params.blogId,
           createdBy: req.user._id,
+          parentId: req.body.parentId || null,
        });
        
        return res.redirect(`/blog/${req.params.blogId}`);
@@ -169,6 +204,66 @@ route.post("/comment/:blogId", cookieValidation, requireAuth, async (req, res) =
        req.session.toast = { status: "error", message: "Failed to post comment." };
        return res.redirect(`/blog/${req.params.blogId}`);
    }
+});
+
+// JSON API: Autocomplete Search Suggestions
+route.get("/api/search-autocomplete", async (req, res) => {
+    try {
+        const query = req.query.q;
+        if (!query || query.trim() === "") {
+            return res.json([]);
+        }
+        // Match matching titles or categories
+        const suggestions = await Blog.find({
+            $or: [
+                { title: { $regex: new RegExp(query, 'i') } },
+                { category: { $regex: new RegExp(query, 'i') } }
+            ]
+        })
+        .limit(5)
+        .select("title _id category")
+        .lean();
+        
+        return res.json(suggestions);
+    } catch (error) {
+        console.error("Autocomplete search error:", error);
+        return res.status(500).json([]);
+    }
+});
+
+// Likes Toggle Route
+route.post("/like/:id", cookieValidation, requireAuth, async (req, res) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        return res.status(400).json({ error: "Invalid Blog ID." });
+    }
+    
+    try {
+        const blog = await Blog.findById(req.params.id);
+        if (!blog) {
+            return res.status(404).json({ error: "Blog not found." });
+        }
+        
+        if (!blog.likes) {
+            blog.likes = [];
+        }
+        
+        const userId = req.user._id;
+        const index = blog.likes.indexOf(userId);
+        let liked = false;
+        
+        if (index === -1) {
+            blog.likes.push(userId);
+            liked = true;
+        } else {
+            blog.likes.splice(index, 1);
+        }
+        
+        await blog.save();
+        return res.json({ liked, likesCount: blog.likes.length });
+    } catch (error) {
+        console.error("Like toggle error:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
 });
 
 module.exports = route;

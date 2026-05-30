@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <%- include("./partials/head") %>
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="/css/styles.css">
   <style>
     /* Profile Image Overlay for Edit */
@@ -12,11 +12,11 @@
       cursor: pointer;
     }
     .profile-picture-container img {
-      width: 140px;
-      height: 140px;
+      width: 130px;
+      height: 130px;
       object-fit: cover;
       transition: var(--transition-normal);
-      border: 4px solid white;
+      border: 4px solid var(--surface-solid);
     }
     .edit-overlay {
       position: absolute;
@@ -73,15 +73,26 @@
 
   <main class="flex-grow-1 container py-4 animate-fade-up">
     
+    <!-- Profile Banner (Cover Section) -->
+    <div class="profile-banner-container shadow-sm mb-4" id="banner-container" style="background-image: <%= coverImage ? "url('" + coverImage + "')" : "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)" %>;">
+      <div class="banner-overlay">
+        <i class="fas fa-camera fs-3 mb-1"></i>
+        <span>Update Cover Banner</span>
+      </div>
+      <form id="bannerForm" action="/user/upload-cover-image" method="POST" enctype="multipart/form-data">
+        <input type="file" name="coverImage" id="bannerImageInput" accept="image/*" style="display: none;">
+      </form>
+    </div>
+
     <!-- User Profile Section -->
-    <div class="glass-panel p-4 p-md-5 mb-5 text-center text-md-start delay-100">
+    <div class="glass-panel p-4 mb-5 text-center text-md-start delay-100 position-relative" style="z-index: 2; margin-top: -20px; background: var(--surface-color);">
       <div class="row align-items-center">
         <div class="col-md-3 text-center mb-4 mb-md-0">
           <div class="profile-picture-container shadow-sm rounded-circle" id="edit-icon">
             <img src="<%= profileImage %>" alt="Profile Picture" class="rounded-circle">
             <div class="edit-overlay">
-              <i class="fas fa-camera fs-3 mb-1"></i>
-              <span style="font-size: 0.8rem; font-weight: 600;">Update</span>
+              <i class="fas fa-camera fs-4 mb-1"></i>
+              <span style="font-size: 0.75rem; font-weight: 600;">Update</span>
             </div>
           </div>
           <form id="uploadForm" action="/user/upload-profile-image" method="POST" enctype="multipart/form-data">
@@ -102,78 +113,289 @@
       </div>
     </div>
 
-    <!-- Blogs Section -->
-    <div class="mb-5">
-      <div class="d-flex align-items-center justify-content-between mb-4">
-        <h3 class="fw-bold m-0"><i class="fas fa-book-open text-primary me-2"></i>Your Stories</h3>
-        <a href="/blog/addBlog" class="btn btn-primary-custom btn-sm"><i class="fas fa-plus me-1"></i> New</a>
+    <!-- Dashboard Main Layout -->
+    <div class="row g-4 mb-5">
+      
+      <!-- Sidebar Tab Toggles -->
+      <div class="col-lg-3">
+        <div class="glass-panel p-3">
+          <div class="d-flex flex-column gap-2 nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+            <button class="nav-link nav-link-custom active text-start" id="v-pills-analytics-tab" data-bs-toggle="pill" data-bs-target="#v-pills-analytics" type="button" role="tab" aria-controls="v-pills-analytics" aria-selected="true">
+              <i class="fas fa-chart-pie me-2"></i> Analytics Board
+            </button>
+            <button class="nav-link nav-link-custom text-start" id="v-pills-blogs-tab" data-bs-toggle="pill" data-bs-target="#v-pills-blogs" type="button" role="tab" aria-controls="v-pills-blogs" aria-selected="false">
+              <i class="fas fa-book-open me-2"></i> My Stories (<%= blogs.length %>)
+            </button>
+            <button class="nav-link nav-link-custom text-start" id="v-pills-bookmarks-tab" data-bs-toggle="pill" data-bs-target="#v-pills-bookmarks" type="button" role="tab" aria-controls="v-pills-bookmarks" aria-selected="false">
+              <i class="fas fa-bookmark me-2"></i> Bookmarks (<%= bookmarks.length %>)
+            </button>
+          </div>
+        </div>
       </div>
 
-      <% if (blogs.length === 0) { %>
-        <div class="text-center py-5 glass-panel">
-          <h5 class="text-muted">You haven't written any blogs yet.</h5>
-          <a href="/blog/addBlog" class="btn btn-outline-custom mt-3">Start Writing</a>
-        </div>
-      <% } else { %>
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-          <% blogs.forEach((blog, index) => { %>
-            <% const delay = (index % 5) * 100 + 200; %>
-            <div class="col">
-              <div class="modern-card h-100 position-relative animate-fade-up delay-<%= delay %>">
-                
-                <!-- Delete Form overlay -->
-                <form action="/blog/delete/<%= blog._id %>?_method=DELETE" method="POST" class="m-0">
-                  <button type="submit" class="delete-btn-overlay" title="Delete Blog" onclick="return confirm('Are you sure you want to delete this blog?');">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </form>
-                
-                <div class="card-img-container">
-                   <span class="category-badge"><%= blog.category %></span>
-                   <img src="<%= blog.coverImage %>" class="card-img-top" alt="Blog Image">
+      <!-- Tab Content Area -->
+      <div class="col-lg-9">
+        <div class="tab-content" id="v-pills-tabContent">
+          
+          <!-- TAB 1: Analytics Board -->
+          <div class="tab-pane fade show active" id="v-pills-analytics" role="tabpanel" aria-labelledby="v-pills-analytics-tab">
+            
+            <!-- KPI Counters Row -->
+            <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+              <!-- KPI: Total Stories -->
+              <div class="col">
+                <div class="glass-panel kpi-card p-4 text-center border-start border-4 border-primary h-100">
+                  <div class="text-muted small fw-bold text-uppercase mb-1">Total Stories</div>
+                  <h2 class="display-6 fw-bold text-dark mb-1"><%= blogs.length %></h2>
+                  <span class="text-muted small">Articles published</span>
                 </div>
-                <div class="card-body p-4 d-flex flex-column">
-                  
-                  <div class="blog-meta mt-1">
-                     <div class="d-flex align-items-center">
-                       <img src="<%= user.profileImage %>" class="meta-avatar me-2" alt="Author">
-                       <span class="fw-semibold text-dark" style="font-size: 0.85rem;"><%= user.name %></span>
-                     </div>
-                     <span class="text-muted" style="font-size: 0.75rem;"><i class="far fa-calendar-alt me-1"></i> <%= new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
-                  </div>
-
-                  <h5 class="card-title fw-bold text-dark mb-3"><%= blog.title %></h5>
-                  <p class="card-text text-muted mb-4 flex-grow-1" style="font-size: 0.95rem;">
-                    <%= blog.body.replace(/<[^>]*>/g, '').length > 100 ? blog.body.replace(/<[^>]*>/g, '').substring(0, 100) + '...' : blog.body.replace(/<[^>]*>/g, '') %>
-                  </p>
-                  <a href="/blog/<%= blog._id %>" class="btn btn-outline-custom mt-auto w-100 text-center">Read Article</a>
+              </div>
+              
+              <!-- KPI: Total Likes -->
+              <div class="col">
+                <div class="glass-panel kpi-card p-4 text-center border-start border-4 border-danger h-100">
+                  <div class="text-muted small fw-bold text-uppercase mb-1">Likes Earned</div>
+                  <h2 class="display-6 fw-bold text-dark mb-1"><%= analytics.totalLikes %></h2>
+                  <span class="text-muted small">From unique readers</span>
+                </div>
+              </div>
+              
+              <!-- KPI: Total Comments -->
+              <div class="col">
+                <div class="glass-panel kpi-card p-4 text-center border-start border-4 border-success h-100">
+                  <div class="text-muted small fw-bold text-uppercase mb-1">Comments Received</div>
+                  <h2 class="display-6 fw-bold text-dark mb-1"><%= analytics.totalComments %></h2>
+                  <span class="text-muted small">Total threads</span>
                 </div>
               </div>
             </div>
-          <% }) %>
+
+            <!-- Visualization Charts -->
+            <div class="glass-panel p-4 mb-4">
+              <h4 class="fw-bold mb-4 text-dark"><i class="fas fa-chart-bar text-primary me-2"></i>Category Breakdown</h4>
+              <% if (blogs.length === 0) { %>
+                <div class="text-center py-5">
+                  <h6 class="text-muted">No blog metrics available yet. Publish stories to visualize analytics!</h6>
+                </div>
+              <% } else { %>
+                <div class="chart-container">
+                  <canvas id="categoryChart"></canvas>
+                </div>
+              <% } %>
+            </div>
+
+          </div>
+
+          <!-- TAB 2: My Stories -->
+          <div class="tab-pane fade" id="v-pills-blogs" role="tabpanel" aria-labelledby="v-pills-blogs-tab">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+              <h3 class="fw-bold m-0"><i class="fas fa-book-open text-primary me-2"></i>Your Stories</h3>
+              <a href="/blog/addBlog" class="btn btn-primary-custom btn-sm"><i class="fas fa-plus me-1"></i> Add New</a>
+            </div>
+
+            <% if (blogs.length === 0) { %>
+              <div class="text-center py-5 glass-panel">
+                <h5 class="text-muted">You haven't written any blogs yet.</h5>
+                <a href="/blog/addBlog" class="btn btn-outline-custom mt-3">Start Writing</a>
+              </div>
+            <% } else { %>
+              <div class="row row-cols-1 row-cols-sm-2 g-4">
+                <% blogs.forEach((blog, index) => { %>
+                  <div class="col">
+                    <div class="modern-card h-100 position-relative">
+                      
+                      <!-- Delete Overlay -->
+                      <form action="/blog/delete/<%= blog._id %>?_method=DELETE" method="POST" class="m-0">
+                        <button type="submit" class="delete-btn-overlay" title="Delete Blog" onclick="return confirm('Are you sure you want to delete this blog?');">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
+                      
+                      <div class="card-img-container">
+                         <span class="category-badge"><%= blog.category %></span>
+                         <img src="<%= blog.coverImage %>" class="card-img-top" alt="Blog Image">
+                      </div>
+                      <div class="card-body p-4 d-flex flex-column">
+                        <div class="blog-meta mt-1" style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+                           <div class="d-flex align-items-center" style="min-width: 0; flex-grow: 1;">
+                             <img src="<%= user.profileImage %>" class="meta-avatar me-2" alt="Author">
+                             <span class="fw-semibold text-dark" style="font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= user.name %></span>
+                           </div>
+                           <div class="text-end" style="flex-shrink: 0; white-space: nowrap;">
+                             <span class="text-muted d-block" style="font-size: 0.72rem;"><i class="far fa-calendar-alt me-1"></i> <%= new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+                             <span class="text-muted d-inline-block mt-1" style="font-size: 0.72rem; font-weight: 500;"><i class="fas fa-bolt text-warning me-1"></i> <%= blog.readingTime %> min read • <i class="fas fa-heart text-danger me-1"></i> <%= blog.likes ? blog.likes.length : 0 %></span>
+                           </div>
+                        </div>
+                        <h5 class="card-title fw-bold text-dark mb-3"><%= blog.title %></h5>
+                        <a href="/blog/<%= blog._id %>" class="btn btn-outline-custom mt-auto w-100 text-center">Read Article</a>
+                      </div>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+          </div>
+
+          <!-- TAB 3: Bookmarks -->
+          <div class="tab-pane fade" id="v-pills-bookmarks" role="tabpanel" aria-labelledby="v-pills-bookmarks-tab">
+            <h3 class="fw-bold mb-4"><i class="fas fa-bookmark text-primary me-2"></i>Reading Bookmarks</h3>
+            
+            <% if (bookmarks.length === 0) { %>
+              <div class="text-center py-5 glass-panel" id="no-bookmarks-placeholder">
+                <h5 class="text-muted">No bookmarked articles.</h5>
+                <a href="/" class="btn btn-outline-custom mt-3">Browse Feed</a>
+              </div>
+            <% } else { %>
+              <div class="row row-cols-1 row-cols-sm-2 g-4">
+                <% bookmarks.forEach(blog => { %>
+                  <div class="col">
+                    <div class="modern-card h-100 position-relative">
+                      <!-- Live-remove Bookmark Button -->
+                      <button class="bookmark-btn position-absolute border-0 rounded-circle bg-white text-muted d-flex align-items-center justify-content-center shadow-sm bookmarked" 
+                              data-id="<%= blog._id %>" 
+                              style="top: 15px; left: 15px; z-index: 5; width: 36px; height: 36px; transition: all 0.2s;"
+                              onclick="toggleBookmark(this); this.closest('.col').remove(); checkBookmarksEmpty();">
+                        <i class="fas fa-bookmark"></i>
+                      </button>
+
+                      <div class="card-img-container">
+                         <span class="category-badge"><%= blog.category %></span>
+                         <img src="<%= blog.coverImage %>" class="card-img-top" alt="Blog Cover">
+                      </div>
+                      <div class="card-body p-4 d-flex flex-column">
+                        <div class="blog-meta mt-1" style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+                           <div class="d-flex align-items-center" style="min-width: 0; flex-grow: 1;">
+                             <img src="<%= blog.createdBy.profileImage %>" class="meta-avatar me-2" alt="Author">
+                             <span class="fw-semibold text-dark" style="font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= blog.createdBy.name %></span>
+                           </div>
+                           <div class="text-end" style="flex-shrink: 0; white-space: nowrap;">
+                             <span class="text-muted d-block" style="font-size: 0.72rem;"><i class="far fa-calendar-alt me-1"></i> <%= new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+                             <span class="text-muted d-inline-block mt-1" style="font-size: 0.72rem; font-weight: 500;"><i class="fas fa-bolt text-warning me-1"></i> <%= blog.readingTime %> min read • <i class="fas fa-heart text-danger me-1"></i> <%= blog.likes ? blog.likes.length : 0 %></span>
+                           </div>
+                        </div>
+                        <h5 class="card-title fw-bold text-dark mb-3"><%= blog.title %></h5>
+                        <a href="/blog/<%= blog._id %>" class="btn btn-outline-custom mt-auto w-100 text-center">Read Article</a>
+                      </div>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+          </div>
+
         </div>
-      <% } %>
+      </div>
+
     </div>
   </main>
   
   <%- include("./partials/footer") %>
   
   <script>
+    // Profile Avatar Upload handlers
     const profileImageInput = document.getElementById('profileImageInput');
     const uploadForm = document.getElementById('uploadForm');
     const editIcon = document.getElementById('edit-icon');
 
-    editIcon.addEventListener('click', () => {
-      profileImageInput.click();
-    });
+    if (editIcon && profileImageInput) {
+      editIcon.addEventListener('click', () => {
+        profileImageInput.click();
+      });
 
-    profileImageInput.addEventListener('change', () => {
-      if (profileImageInput.files.length > 0) {
-        uploadForm.submit();
+      profileImageInput.addEventListener('change', () => {
+        if (profileImageInput.files.length > 0) {
+          uploadForm.submit();
+        }
+      });
+    }
+
+    // Profile Banner Upload handlers
+    const bannerImageInput = document.getElementById('bannerImageInput');
+    const bannerForm = document.getElementById('bannerForm');
+    const bannerContainer = document.getElementById('banner-container');
+
+    if (bannerContainer && bannerImageInput) {
+      bannerContainer.addEventListener('click', () => {
+        bannerImageInput.click();
+      });
+
+      bannerImageInput.addEventListener('change', () => {
+        if (bannerImageInput.files.length > 0) {
+          bannerForm.submit();
+        }
+      });
+    }
+
+    // Check if bookmarks view is empty and display placeholder
+    function checkBookmarksEmpty() {
+      setTimeout(() => {
+        const bookmarksGrid = document.querySelector('#v-pills-bookmarks .row');
+        if (bookmarksGrid && bookmarksGrid.children.length === 0) {
+          bookmarksGrid.remove();
+          const tab = document.getElementById('v-pills-bookmarks');
+          const placeholder = document.createElement('div');
+          placeholder.className = "text-center py-5 glass-panel";
+          placeholder.innerHTML = `<h5 class="text-muted">No bookmarked articles.</h5><a href="/" class="btn btn-outline-custom mt-3">Browse Feed</a>`;
+          tab.appendChild(placeholder);
+        }
+      }, 300);
+    }
+  </script>
+  
+  <!-- Chart.js initialization -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const categoryCounts = <%- JSON.stringify(analytics.categoryCounts) %>;
+      const labels = Object.keys(categoryCounts);
+      const data = Object.values(categoryCounts);
+
+      if (labels.length > 0) {
+        const ctx = document.getElementById('categoryChart').getContext('2d');
+        const isDark = document.documentElement.classList.contains('dark-theme');
+        
+        new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: data,
+              backgroundColor: [
+                '#6366f1', // Indigo
+                '#3b82f6', // Blue
+                '#10b981', // Emerald
+                '#f43f5e', // Rose
+                '#fbbf24', // Amber
+                '#8b5cf6', // Violet
+                '#ec4899', // Pink
+                '#14b8a6'  // Teal
+              ],
+              borderWidth: 2,
+              borderColor: isDark ? '#111827' : '#ffffff'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  padding: 20,
+                  font: {
+                    family: 'Poppins, Inter, sans-serif',
+                    size: 12,
+                    weight: '500'
+                  },
+                  color: isDark ? '#f3f4f6' : '#1e293b'
+                }
+              }
+            }
+          }
+        });
       }
     });
   </script>
-  
+
   <%- include("./partials/script") %>
   <%- include("./partials/toastScript") %>
 </body>

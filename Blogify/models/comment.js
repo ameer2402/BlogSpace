@@ -13,6 +13,11 @@ const commentSchema=new Schema({
         type:Schema.Types.ObjectId,
         ref:"user",
     },
+    parentId:{
+        type:Schema.Types.ObjectId,
+        ref:"comment",
+        default:null,
+    },
 
 },{timestamps:true});
  
