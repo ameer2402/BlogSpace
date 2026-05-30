@@ -18,11 +18,7 @@ const blogSchema=new Schema({
     createdBy:{
         type:Schema.Types.ObjectId,
         ref:"user",
-    },
-    likes:[{
-        type:Schema.Types.ObjectId,
-        ref:"user",
-    }]
+    }
 
 },{timestamps:true, toJSON: { virtuals: true }, toObject: { virtuals: true }});
 

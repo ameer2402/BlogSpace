@@ -231,39 +231,4 @@ route.get("/api/search-autocomplete", async (req, res) => {
     }
 });
 
-// Likes Toggle Route
-route.post("/like/:id", cookieValidation, requireAuth, async (req, res) => {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-        return res.status(400).json({ error: "Invalid Blog ID." });
-    }
-    
-    try {
-        const blog = await Blog.findById(req.params.id);
-        if (!blog) {
-            return res.status(404).json({ error: "Blog not found." });
-        }
-        
-        if (!blog.likes) {
-            blog.likes = [];
-        }
-        
-        const userId = req.user._id;
-        const index = blog.likes.findIndex(id => String(id) === String(userId));
-        let liked = false;
-        
-        if (index === -1) {
-            blog.likes.push(userId);
-            liked = true;
-        } else {
-            blog.likes.splice(index, 1);
-        }
-        
-        await blog.save();
-        return res.json({ liked, likesCount: blog.likes.length });
-    } catch (error) {
-        console.error("Like toggle error:", error);
-        return res.status(500).json({ error: "Internal server error" });
-    }
-});
-
 module.exports = route;

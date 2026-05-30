@@ -77,30 +77,7 @@
   </script>
   
   <script>
-    // AJAX Bookmark Toggler
-    function toggleBookmark(button) {
-      const blogId = button.getAttribute('data-id');
-      if (!blogId) return;
 
-      fetch(`/user/bookmark/${blogId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        const icon = button.querySelector('i');
-        if (data.bookmarked) {
-          button.classList.add('bookmarked');
-          icon.className = 'fas fa-bookmark';
-        } else {
-          button.classList.remove('bookmarked');
-          icon.className = 'far fa-bookmark';
-        }
-      })
-      .catch(err => console.error('Error bookmarking:', err));
-    }
 
     // AJAX Search Autocomplete setup
     document.addEventListener('DOMContentLoaded', () => {

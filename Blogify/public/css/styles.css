@@ -508,46 +508,6 @@ html.dark-theme hr {
   transition: width 0.05s ease;
 }
 
-/* 2. Heart Reaction Button */
-.like-btn {
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 1.15rem;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  cursor: pointer;
-}
-.like-btn.liked {
-  color: var(--accent-color);
-}
-.like-btn:hover {
-  transform: scale(1.15);
-}
-.liked-bounce {
-  animation: heartBounce 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-@keyframes heartBounce {
-  0% { transform: scale(1); }
-  35% { transform: scale(1.4); }
-  70% { transform: scale(0.85); }
-  100% { transform: scale(1); }
-}
-
-/* 3. Bookmarks Button */
-.bookmark-btn {
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 1.15rem;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-.bookmark-btn.bookmarked {
-  color: #fbbf24; /* Amber star/bookmark */
-}
 
 /* 4. Autocomplete Dropdown List */
 .autocomplete-dropdown {

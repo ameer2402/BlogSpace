@@ -126,9 +126,7 @@
             <button class="nav-link nav-link-custom text-start" id="v-pills-blogs-tab" data-bs-toggle="pill" data-bs-target="#v-pills-blogs" type="button" role="tab" aria-controls="v-pills-blogs" aria-selected="false">
               <i class="fas fa-book-open me-2"></i> My Stories (<%= blogs.length %>)
             </button>
-            <button class="nav-link nav-link-custom text-start" id="v-pills-bookmarks-tab" data-bs-toggle="pill" data-bs-target="#v-pills-bookmarks" type="button" role="tab" aria-controls="v-pills-bookmarks" aria-selected="false">
-              <i class="fas fa-bookmark me-2"></i> Bookmarks (<%= bookmarks.length %>)
-            </button>
+
           </div>
         </div>
       </div>
@@ -141,22 +139,13 @@
           <div class="tab-pane fade show active" id="v-pills-analytics" role="tabpanel" aria-labelledby="v-pills-analytics-tab">
             
             <!-- KPI Counters Row -->
-            <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+            <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
               <!-- KPI: Total Stories -->
               <div class="col">
                 <div class="glass-panel kpi-card p-4 text-center border-start border-4 border-primary h-100">
                   <div class="text-muted small fw-bold text-uppercase mb-1">Total Stories</div>
                   <h2 class="display-6 fw-bold text-dark mb-1"><%= blogs.length %></h2>
                   <span class="text-muted small">Articles published</span>
-                </div>
-              </div>
-              
-              <!-- KPI: Total Likes -->
-              <div class="col">
-                <div class="glass-panel kpi-card p-4 text-center border-start border-4 border-danger h-100">
-                  <div class="text-muted small fw-bold text-uppercase mb-1">Likes Earned</div>
-                  <h2 class="display-6 fw-bold text-dark mb-1"><%= analytics.totalLikes %></h2>
-                  <span class="text-muted small">From unique readers</span>
                 </div>
               </div>
               
@@ -223,7 +212,7 @@
                            </div>
                            <div class="text-end" style="flex-shrink: 0; white-space: nowrap;">
                              <span class="text-muted d-block" style="font-size: 0.72rem;"><i class="far fa-calendar-alt me-1"></i> <%= new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
-                             <span class="text-muted d-inline-block mt-1" style="font-size: 0.72rem; font-weight: 500;"><i class="fas fa-bolt text-warning me-1"></i> <%= blog.readingTime %> min read • <i class="fas fa-heart text-danger me-1"></i> <%= blog.likes ? blog.likes.length : 0 %></span>
+                             <span class="text-muted d-inline-block mt-1" style="font-size: 0.72rem; font-weight: 500;"><i class="fas fa-bolt text-warning me-1"></i> <%= blog.readingTime %> min read</span>
                            </div>
                         </div>
                         <h5 class="card-title fw-bold text-dark mb-3"><%= blog.title %></h5>
@@ -236,52 +225,7 @@
             <% } %>
           </div>
 
-          <!-- TAB 3: Bookmarks -->
-          <div class="tab-pane fade" id="v-pills-bookmarks" role="tabpanel" aria-labelledby="v-pills-bookmarks-tab">
-            <h3 class="fw-bold mb-4"><i class="fas fa-bookmark text-primary me-2"></i>Reading Bookmarks</h3>
-            
-            <% if (bookmarks.length === 0) { %>
-              <div class="text-center py-5 glass-panel" id="no-bookmarks-placeholder">
-                <h5 class="text-muted">No bookmarked articles.</h5>
-                <a href="/" class="btn btn-outline-custom mt-3">Browse Feed</a>
-              </div>
-            <% } else { %>
-              <div class="row row-cols-1 row-cols-sm-2 g-4">
-                <% bookmarks.forEach(blog => { %>
-                  <div class="col">
-                    <div class="modern-card h-100 position-relative">
-                      <!-- Live-remove Bookmark Button -->
-                      <button class="bookmark-btn position-absolute border-0 rounded-circle bg-white text-muted d-flex align-items-center justify-content-center shadow-sm bookmarked" 
-                              data-id="<%= blog._id %>" 
-                              style="top: 15px; left: 15px; z-index: 5; width: 36px; height: 36px; transition: all 0.2s;"
-                              onclick="toggleBookmark(this); this.closest('.col').remove(); checkBookmarksEmpty();">
-                        <i class="fas fa-bookmark"></i>
-                      </button>
 
-                      <div class="card-img-container">
-                         <span class="category-badge"><%= blog.category %></span>
-                         <img src="<%= blog.coverImage %>" class="card-img-top" alt="Blog Cover">
-                      </div>
-                      <div class="card-body p-4 d-flex flex-column">
-                        <div class="blog-meta mt-1" style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
-                           <div class="d-flex align-items-center" style="min-width: 0; flex-grow: 1;">
-                             <img src="<%= blog.createdBy.profileImage %>" class="meta-avatar me-2" alt="Author">
-                             <span class="fw-semibold text-dark" style="font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= blog.createdBy.name %></span>
-                           </div>
-                           <div class="text-end" style="flex-shrink: 0; white-space: nowrap;">
-                             <span class="text-muted d-block" style="font-size: 0.72rem;"><i class="far fa-calendar-alt me-1"></i> <%= new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
-                             <span class="text-muted d-inline-block mt-1" style="font-size: 0.72rem; font-weight: 500;"><i class="fas fa-bolt text-warning me-1"></i> <%= blog.readingTime %> min read • <i class="fas fa-heart text-danger me-1"></i> <%= blog.likes ? blog.likes.length : 0 %></span>
-                           </div>
-                        </div>
-                        <h5 class="card-title fw-bold text-dark mb-3"><%= blog.title %></h5>
-                        <a href="/blog/<%= blog._id %>" class="btn btn-outline-custom mt-auto w-100 text-center">Read Article</a>
-                      </div>
-                    </div>
-                  </div>
-                <% }) %>
-              </div>
-            <% } %>
-          </div>
 
         </div>
       </div>
@@ -326,20 +270,7 @@
       });
     }
 
-    // Check if bookmarks view is empty and display placeholder
-    function checkBookmarksEmpty() {
-      setTimeout(() => {
-        const bookmarksGrid = document.querySelector('#v-pills-bookmarks .row');
-        if (bookmarksGrid && bookmarksGrid.children.length === 0) {
-          bookmarksGrid.remove();
-          const tab = document.getElementById('v-pills-bookmarks');
-          const placeholder = document.createElement('div');
-          placeholder.className = "text-center py-5 glass-panel";
-          placeholder.innerHTML = `<h5 class="text-muted">No bookmarked articles.</h5><a href="/" class="btn btn-outline-custom mt-3">Browse Feed</a>`;
-          tab.appendChild(placeholder);
-        }
-      }, 300);
-    }
+
   </script>
   
   <!-- Chart.js initialization -->

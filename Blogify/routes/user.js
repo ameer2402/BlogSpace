@@ -119,10 +119,7 @@ router.post("/signup", validateRequest(signupSchema), async(req,res)=>{
 router.get("/setting", cookieValidation, requireAuth, async (req, res) => {
     try {
         const userid = req.user._id;
-        const newUser = await User.findById(userid).populate({
-            path: 'bookmarks',
-            populate: { path: 'createdBy' }
-        });
+        const newUser = await User.findById(userid);
         if (!newUser) {
             req.session.toast = { status: "error", message: "User not found." };
             return res.redirect("/");
@@ -136,18 +133,6 @@ router.get("/setting", cookieValidation, requireAuth, async (req, res) => {
             const words = cleanBody.split(/\s+/).filter(w => w.length > 0).length;
             b.readingTime = Math.ceil(words / wordsPerMinute);
         });
-
-        if (newUser.bookmarks) {
-            newUser.bookmarks.forEach(b => {
-                const wordsPerMinute = 200;
-                const cleanBody = b.body ? b.body.replace(/<[^>]*>/g, '') : '';
-                const words = cleanBody.split(/\s+/).filter(w => w.length > 0).length;
-                b.readingTime = Math.ceil(words / wordsPerMinute);
-            });
-        }
-        
-        // Calculate Analytics Metrics
-        const totalLikes = blog.reduce((acc, b) => acc + (b.likes ? b.likes.length : 0), 0);
         
         const blogIds = blog.map(b => b._id);
         const CommentModel = require("../models/comment");
@@ -170,9 +155,7 @@ router.get("/setting", cookieValidation, requireAuth, async (req, res) => {
             blogs: blog,
             profileImage: newUser.profileImage,
             coverImage: newUser.coverImage || "",
-            bookmarks: newUser.bookmarks || [],
             analytics: {
-                totalLikes,
                 totalComments,
                 categoryCounts
             },
@@ -245,41 +228,6 @@ router.post("/upload-cover-image", cookieValidation, requireAuth, uploadBanner.s
   }
 });
 
-router.post("/bookmark/:blogId", cookieValidation, requireAuth, async (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.blogId)) {
-      return res.status(400).json({ error: "Invalid Blog ID." });
-  }
-
-  try {
-      const userId = req.user._id;
-      const blogId = req.params.blogId;
-      const user = await User.findById(userId);
-      
-      if (!user) {
-          return res.status(404).json({ error: "User not found." });
-      }
-
-      if (!user.bookmarks) {
-          user.bookmarks = [];
-      }
-
-      const index = user.bookmarks.findIndex(id => String(id) === String(blogId));
-      let bookmarked = false;
-
-      if (index === -1) {
-          user.bookmarks.push(blogId);
-          bookmarked = true;
-      } else {
-          user.bookmarks.splice(index, 1);
-      }
-
-      await user.save();
-      return res.json({ bookmarked });
-  } catch (error) {
-      console.error("Bookmark toggle error:", error);
-      return res.status(500).json({ error: "Internal server error." });
-  }
-});
 
 
   router.post("/check-mail", async (req, res) => {
