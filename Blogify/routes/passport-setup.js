@@ -22,6 +22,7 @@ passport.use(new GoogleStrategy({
     clientID: process.env.client_id, // Replace with your client ID
     clientSecret: process.env.client_secret, // Replace with your client secret
     callbackURL: '/auth/google/callback',
+    proxy: true, // IMPORTANT: Trust Vercel's proxy to generate HTTPS redirect URIs
 }, (accessToken, refreshToken, profile, done) => {
     // Check if the user already exists in the database
     User.findOne({ email: profile.emails[0].value }).then((existingUser) => {
