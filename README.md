@@ -301,8 +301,6 @@ cloud_key=YOUR_CLOUDINARY_API_KEY
 cloud_name=YOUR_CLOUDINARY_CLOUD_NAME
 cloud_secret=YOUR_CLOUDINARY_API_SECRET
 
-# ====== Default Password (for new signups) ======
-default_password=YOUR_DEFAULT_PASSWORD
 
 # ====== Email Configuration (Nodemailer / Gmail) ======
 email=your_email@example.com
