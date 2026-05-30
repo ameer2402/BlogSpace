@@ -1,50 +1,45 @@
-<div class="formcontainer">
-  <div class="card mt-5 pb-5">
-      <div class="d-flex flex-row justify-content-center p-3 adiv text-white">
-          <span class="pb-3">Feedback</span>
+<div class="container d-flex justify-content-center mt-5 mb-5 animate-fade-up">
+  <div class="modern-card p-4 p-md-5" style="width: 100%; max-width: 600px;">
+      <div class="text-center mb-4">
+          <h2 class="fw-bold text-dark mb-2">We value your Feedback <i class="fas fa-heart text-danger ms-2"></i></h2>
+          <p class="text-muted">Please let us know about your experience.</p>
       </div>
-      <div class="mt-2 p-4 text-center">
-          <h6 class="mb-0">Your feedback helps us improve.</h6>
-          <small class="px-3">Please let us know about your experience.</small>
 
-          <!-- Feedback Form -->
-          <form id="feedbackForm" action="/mail/submit-feedback" method="POST" onsubmit="showSubmitSpinner(event)">
-              <input type="hidden" name="rating" id="ratingInput" value="">
+      <!-- Feedback Form -->
+      <form id="feedbackForm" action="/mail/submit-feedback" method="POST" onsubmit="showSubmitSpinner(event)">
+          <input type="hidden" name="rating" id="ratingInput" value="">
 
-              <div class="d-flex flex-row justify-content-center mt-2">
-                  <% const emojis = [
-                      { src: "https://img.icons8.com/emoji/48/000000/angry-face-emoji--v2.png", alt: "Angry", value: 1 },
-                      { src: "https://img.icons8.com/fluent/48/000000/sad.png", alt: "Sad", value: 2 },
-                      { src: "https://img.icons8.com/color/48/000000/happy.png", alt: "Neutral", value: 3 },
-                      { src: "https://img.icons8.com/emoji/48/000000/smiling-face.png", alt: "Happy", value: 4 },
-                      { src: "https://img.icons8.com/color/48/000000/lol.png", alt: "Very Happy", value: 5 }
-                  ]; %>
-                  <% emojis.forEach(function(emoji) { %>
-                      <img 
-                          src="<%= emoji.src %>" 
-                          alt="<%= emoji.alt %>" 
-                          data-value="<%= emoji.value %>" 
-                          class="emoji-icon"
-                          onclick="setRating(<%= emoji.value %>, this)" 
-                          title="<%= emoji.alt %>"
-                      />
-                  <% }) %>
-              </div>
+          <div class="d-flex flex-row justify-content-center mt-2 mb-4 gap-2 gap-md-4">
+              <% const emojis = [
+                  { src: "https://img.icons8.com/emoji/48/000000/angry-face-emoji--v2.png", alt: "Angry", value: 1 },
+                  { src: "https://img.icons8.com/fluent/48/000000/sad.png", alt: "Sad", value: 2 },
+                  { src: "https://img.icons8.com/color/48/000000/happy.png", alt: "Neutral", value: 3 },
+                  { src: "https://img.icons8.com/emoji/48/000000/smiling-face.png", alt: "Happy", value: 4 },
+                  { src: "https://img.icons8.com/color/48/000000/lol.png", alt: "Very Happy", value: 5 }
+              ]; %>
+              <% emojis.forEach(function(emoji) { %>
+                  <img 
+                      src="<%= emoji.src %>" 
+                      alt="<%= emoji.alt %>" 
+                      data-value="<%= emoji.value %>" 
+                      class="emoji-icon shadow-sm rounded-circle"
+                      onclick="setRating(<%= emoji.value %>, this)" 
+                      title="<%= emoji.alt %>"
+                  />
+              <% }) %>
+          </div>
 
-              <!-- Feedback Text Area -->
-              <div class="form-group mt-4">
-                  <textarea class="feedback-form-control" name="feedback" rows="10" placeholder="Message" required></textarea>
-              </div>
+          <!-- Feedback Text Area -->
+          <div class="form-floating mb-4">
+              <textarea class="form-control" id="feedbackMsg" name="feedback" style="height: 150px; resize: none;" placeholder="Message" required></textarea>
+              <label for="feedbackMsg" class="text-muted">Tell us more about your experience...</label>
+          </div>
 
-              <!-- Submit Button with Spinner -->
-              <div class="mt-2">
-                  <button type="submit" class="feedback-btn btn-block" id="submitButton">
-                      <span id="buttonText">Send Feedback</span>
-                      <!-- Spinner hidden initially -->
-                      <span class="spinner-border spinner-border-sm" id="submitSpinner" style="display: none; margin-left: 8px;"></span>
-                  </button>
-              </div>
-          </form>
-      </div>
+          <!-- Submit Button with Spinner -->
+          <button type="submit" class="btn btn-primary-custom w-100 py-3" id="submitButton">
+              <span id="buttonText">Send Feedback</span>
+              <span class="spinner-border spinner-border-sm" id="submitSpinner" style="display: none; margin-left: 8px;"></span>
+          </button>
+      </form>
   </div>
 </div>

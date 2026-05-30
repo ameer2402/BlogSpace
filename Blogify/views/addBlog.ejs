@@ -2,183 +2,83 @@
 <html lang="en">
 <head>
   <%- include("./partials/head") %>
-  
-  <!-- Google Fonts for better typography -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  
-  <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      overflow-x: hidden;
-      background-color: #f4f7fb;
-      background-image: url('/bg.webp');
-      background-repeat: no-repeat;
-      background-position: right center;
-      background-size: cover;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    h1, h2, h3, label {
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 500;
-    }
-
-    .main-container {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    
-    .blog {
-      width: 50%;
-      margin: 0 auto;
-      padding: 20px;
-      background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      border: 1px solid #e0e0e0;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-    }
-
-    .form-group input, .form-group select, .form-group textarea {
-      width: 100%;
-      padding: 8px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    #editor-container {
-      height: 200px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background-color: white;
-      padding: 10px;
-    }
-
-    .blog-btn {
-      width: 150px;
-      margin-left: auto;
-      margin-right: auto;
-      display: block;
-      padding: 10px 20px;
-      font-size: 1rem;
-      border: none;
-      background-color: #007bff;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .blog-btn:hover {
-      background-color: #0056b3;
-    }
-
-    /* Responsive design for tablets and smaller devices */
-    @media (max-width: 768px) {
-      .blog {
-        width: 90%;
-      }
-    }
-
-    /* Full width on mobile screens */
-    @media (max-width: 576px) {
-      .blog {
-        width: 100%;
-      }
-    }
-  </style>
   <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
-
-  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
   <%- include("./partials/nav") %>
   
-  <div class="main-container">
-    <form class="blog" action="/blog/addBlog" method="POST" enctype="multipart/form-data" onsubmit="handleFormSubmit(event)">
-      
+  <main class="flex-grow-1 d-flex align-items-center justify-content-center py-5">
+    <div class="container animate-fade-up">
+      <div class="modern-card p-4 p-md-5 mx-auto" style="max-width: 800px;">
+        <div class="text-center mb-4">
+          <h2 class="fw-bold text-dark"><i class="fas fa-pen-fancy text-primary me-2"></i>Create a New Story</h2>
+          <p class="text-muted">Share your thoughts, experiences, and expertise with the community.</p>
+        </div>
 
-      <h2>Create a New Blog</h2>
+        <form action="/blog/addBlog" method="POST" enctype="multipart/form-data" onsubmit="handleFormSubmit(event)">
+          
+          <div class="mb-4">
+            <label for="coverImage" class="form-label fw-semibold">Cover Image</label>
+            <input type="file" class="form-control" id="coverImage" name="coverImage" accept="image/jpeg, image/jpg, image/png" required>
+            <div class="form-text">Choose a high-quality image to represent your blog.</div>
+          </div>
 
-      <div class="form-group">
-        <label for="coverImage" class="form-label">Cover Image</label>
-        <input type="file" class="form-control" id="coverImage" name="coverImage" accept="image/jpeg, image/jpg, image/png" aria-describedby="coverImage" required>
+          <div class="mb-4">
+            <label for="title" class="form-label fw-semibold">Title</label>
+            <input type="text" class="form-control" id="title" name="title" placeholder="A catchy title..." required>
+          </div>
+
+          <div class="mb-4">
+            <label for="category" class="form-label fw-semibold">Category</label>
+            <select name="category" id="category" class="form-select" required>
+              <option value="personal">Personal</option>
+              <option value="professional">Professional</option>
+              <option value="travel">Travel</option>
+              <option value="health-and-fitness">Health & Fitness</option>
+              <option value="tech">Tech</option>
+              <option value="food">Food</option>
+              <option value="business-and-finance">Business & Finance</option>
+              <option value="educational">Educational</option>
+              <option value="fashion">Fashion</option>
+              <option value="parenting">Parenting</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="do-it-yourself">DIY</option>
+              <option value="photography">Photography</option>
+              <option value="sports">Sports</option>
+              <option value="news">News</option>
+              <option value="gaming">Gaming</option>
+              <option value="art-and-design">Art & Design</option>
+              <option value="book">Books</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label for="body" class="form-label fw-semibold">Content</label>
+            <!-- Important: Override Quill's default background so it matches the card -->
+            <div id="editor-container" style="height: 300px; background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 0 0 var(--radius-md) var(--radius-md);"></div>
+            <input type="hidden" id="body" name="body">
+          </div>
+
+          <div class="d-grid mt-5">
+            <button type="submit" class="btn btn-primary-custom py-2 fs-5">Publish Blog <i class="fas fa-paper-plane ms-2"></i></button>
+          </div>
+        </form>
       </div>
-
-      <div class="form-group">
-        <label for="title" class="form-label">Title</label>
-        <input type="text" class="form-control" id="title" name="title" required>
-      </div>
-
-      <div class="form-group">
-        <label for="category" class="form-label">Category of Blog:</label>
-        <select name="category" id="category" class="form-control" required>
-          <option value="personal">personal</option>
-          <option value="professional">professional</option>
-          <option value="travel">travel</option>
-          <option value="health-and-fitness">health and fitness</option>
-          <option value="tech">tech</option>
-          <option value="food">food</option>
-          <option value="business-and-finance">business and finance</option>
-          <option value="educational">educational</option>
-          <option value="fashion">fashion</option>
-          <option value="parenting">parenting</option>
-          <option value="entertainment">entertainment</option>
-          <option value="do-it-yourself">do it yourself</option>
-          <option value="photography">photography</option>
-          <option value="sports">sports</option>
-          <option value="news">news</option>
-          <option value="gaming">gaming</option>
-          <option value="art-and-design">art and design</option>
-          <option value="book">book</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="body" class="form-label">Add Details Here</label>
-        <div id="editor-container"></div>
-        <input type="hidden" id="body" name="body">
-      </div>
-
-      <button type="submit" class="btn btn-primary blog-btn">Submit</button>
-    </form>
-  </div>
+    </div>
+  </main>
 
   <%- include("./partials/footer") %>
   <%- include("./partials/script") %>
-   <!-- Quill JS -->
-   <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-   <script>
-    let quill; // Declare quill in the global scope
   
+  <!-- Quill JS -->
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <script>
+    let quill;
     document.addEventListener('DOMContentLoaded', function () {
-      console.log("DOM fully loaded and parsed");
-  
-      // Initialize Quill
       quill = new Quill('#editor-container', {
         theme: 'snow',
-        placeholder: 'Write your blog content here...',
+        placeholder: 'Write your heart out...',
         modules: {
           toolbar: [
             [{ 'header': [1, 2, false] }],
@@ -189,43 +89,29 @@
           ]
         }
       });
+      
+      // Fix Quill toolbar border radius manually
+      const toolbar = document.querySelector('.ql-toolbar');
+      if (toolbar) {
+          toolbar.style.borderTopLeftRadius = '0.75rem';
+          toolbar.style.borderTopRightRadius = '0.75rem';
+          toolbar.style.borderColor = 'var(--border-color)';
+          toolbar.style.backgroundColor = 'var(--surface-solid)';
+      }
     });
-  
-    function handleFormSubmit(event) {
-      event.preventDefault(); // Prevent the form's default submission behavior
-      console.log("Form submitted");
-  
-       // Capture plain text content
- const quillContent = quill.root.innerHTML.trim(); // Gets HTML content
 
-  
-      // Validate content
-  if (quillContent === '<p><br></p>' || quillContent === '') { // Quill's default empty state
-    alert('Blog body cannot be empty. Please write some content.');
-    return;
-  }
-  
-      // Set Quill content to the hidden input
-      const hiddenInput = document.querySelector('#body');
-      hiddenInput.value = quillContent;
-  
-      console.log("Hidden input value set:", hiddenInput.value);
-  
-      // Simulate a form submission (e.g., log data to the console)
-      const title = document.querySelector('#title').value;
-      const category = document.querySelector('#category').value;
-      console.log("Form Data:");
-      console.log("Title:", title);
-      console.log("Category:", category);
-      console.log("Blog Content:", quillContent);
-  
-      // Uncomment to submit the form
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      const quillContent = quill.root.innerHTML.trim();
+      
+      if (quillContent === '<p><br></p>' || quillContent === '') {
+        alert('Blog content cannot be empty. Please write some content.');
+        return;
+      }
+      
+      document.querySelector('#body').value = quillContent;
       event.target.submit();
     }
   </script>
-  
-  
- 
-  
 </body>
 </html>

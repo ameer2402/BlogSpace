@@ -2,7 +2,7 @@ const{Router}=require("express");
 const User=require("../models/user");
 const multer = require('multer');
 const path=require("path");
-const{cookieValidation}=require("../middlewares/authentication");
+const { cookieValidation, requireAuth } = require("../middlewares/authentication");
 const{generateToken}=require("../services/authentication");
 const Blogs=require("../models/blog");
 const generateOTP=require("../controllers/GenerateOtp");
@@ -104,69 +104,59 @@ router.post("/signup",async(req,res)=>{
 });
 
 
-router.get("/setting",cookieValidation,async(req,res)=>{
-    const userid=req.user._id;
-    const newUser=await User.findById(userid);
-    const blog=await Blogs.find({createdBy:userid}).populate("createdBy");
-    const toast=req.session.toast||null;
-    req.session.toast=null;
-    // console.log(blog);
-    return res.render("setting",{
-        user:newUser,
-        blogs:blog,
-        profileImage:newUser.profileImage,
-        toast,
-    });
-})
-
-router.post("/upload-profile-image", cookieValidation, upload.single("profileImage"), async (req, res) => {
-  try {
-    const userId = req.user._id;
-    if (!req.file) {
-      req.session.toast = { status: "error", message: "No file uploaded!" };
-      return res.redirect("/user/setting");
+router.get("/setting", cookieValidation, requireAuth, async (req, res) => {
+    try {
+        const userid = req.user._id;
+        const newUser = await User.findById(userid);
+        if (!newUser) {
+            req.session.toast = { status: "error", message: "User not found." };
+            return res.redirect("/");
+        }
+        const blog = await Blogs.find({ createdBy: userid }).populate("createdBy").lean();
+        const toast = req.session.toast || null;
+        req.session.toast = null;
+        
+        return res.render("setting", {
+            user: newUser,
+            blogs: blog,
+            profileImage: newUser.profileImage,
+            toast,
+        });
+    } catch (error) {
+        console.error("Error loading settings:", error);
+        req.session.toast = { status: "error", message: "Error loading settings." };
+        return res.redirect("/");
     }
-
-    const imagePath = req.file.path; // Cloudinary URL
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { profileImage: imagePath },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedUser) {
-      return res.status(404).send("User not found");
-    }
-    router.post("/upload-profile-image", cookieValidation, upload.single("profileImage"), async (req, res) => {
-  try {
-    const userId = req.user._id;
-    if (!req.file) {
-      req.session.toast = { status: "error", message: "No file uploaded!" };
-      return res.redirect("/user/setting");
-    }
-
-    const imagePath = req.file.path; // Cloudinary URL
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { profileImage: imagePath },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedUser) {
-      return res.status(404).send("User not found");
-    }
-    req.user.profileImage=updatedUser.profileImage;
-    res.redirect("/user/setting");
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
-  }
 });
-   
+
+router.post("/upload-profile-image", cookieValidation, requireAuth, upload.single("profileImage"), async (req, res) => {
+  try {
+    const userId = req.user._id;
+    if (!req.file) {
+      req.session.toast = { status: "error", message: "No file uploaded!" };
+      return res.redirect("/user/setting");
+    }
+
+    const imagePath = req.file.path; // Cloudinary URL
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profileImage: imagePath },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+        req.session.toast = { status: "error", message: "User not found." };
+        return res.redirect("/user/setting");
+    }
+    
+    // Update req.user's profile image to immediately reflect changes on UI
+    req.user.profileImage = updatedUser.profileImage;
+    req.session.toast = { status: "success", message: "Profile image updated successfully!" };
     res.redirect("/user/setting");
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
+    console.error("Error uploading profile image:", error);
+    req.session.toast = { status: "error", message: "Internal Server Error during upload." };
+    res.redirect("/user/setting");
   }
 });
 
@@ -252,23 +242,36 @@ router.post("/verify-otp",async(req,res)=>{
 
 })
 
-router.get("/change-password",(req,res)=>{
-    res.render("change-password");
-})
+router.get("/change-password", cookieValidation, (req, res) => {
+    // Allow access if they are logged in OR if they have verified an OTP session
+    if (!req.session.email && !req.user) {
+        req.session.toast = { status: "error", message: "Unauthorized access." };
+        return res.redirect("/");
+    }
+    res.render("change-password", { user: req.user });
+});
 
-router.post("/change-password",async(req,res)=>{
+router.post("/change-password", cookieValidation, async(req,res)=>{
   const {newPassword}=req.body;
-  const email=req.session.email;
+  const email = req.session.email || (req.user ? req.user.email : null);
+  
+  if (!email) {
+      req.session.toast={status:"error",message:"Unauthorized access."};
+      return res.redirect("/");
+  }
+
   const user=await User.findOne({email});
 
    // Update the user's password in the database
    user.password = newPassword;
-   console.log(user.password);
    await user.save();
    req.session.toast={status:"success",message:"Password updated successfully"};
-   await OTP.deleteOne({email});
+   
+   if (req.session.email) {
+       await OTP.deleteOne({email});
+       req.session.email = null; // Clear session after reset
+   }
    res.redirect("/");
-
 });
 
 router.get('/logout', (req, res) => {

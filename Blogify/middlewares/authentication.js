@@ -1,23 +1,32 @@
 const {validateToken}=require("../services/authentication");
 
     function cookieValidation(req, res, next) {
-        const cookieValue = req.cookies["token"];  // Corrected the way to access the cookie
+        const cookieValue = req.cookies["token"];
         if (!cookieValue) {
-            return next();  // If there's no token, proceed to the next middleware
+            return next();
         }
     
         try {
-            const payload = validateToken(cookieValue);  // Validate the token
-            req.user = payload;  // Attach the payload to the request object
+            const payload = validateToken(cookieValue);
+            req.user = payload;
         } catch (error) {
-            console.error('Token validation failed:', error);  // Optionally log the error
+            console.error('Token validation failed:', error);
         }
     
-        next();  // Proceed to the next middleware
+        next();
+    }
+    
+    function requireAuth(req, res, next) {
+        if (!req.user) {
+            req.session.toast = { status: "error", message: "You must be logged in to access this page." };
+            return res.redirect("/user/signin");
+        }
+        next();
     }
     
     module.exports = {
         cookieValidation,
+        requireAuth
     };
     
    

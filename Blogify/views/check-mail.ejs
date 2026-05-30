@@ -5,46 +5,7 @@
     <%- include("./partials/head") %>
     <link rel="stylesheet" href="/css/footer.css">
     <link rel="stylesheet" href="/css/spinner.css">
-    <style>
-        /* Custom styles for the card layout */
-        .email-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
 
-        .email-card {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            max-width: 900px;
-            height: 60vh;
-            align-items: center;
-        }
-
-        /* Flexbox for row layout on larger screens */
-        @media (min-width: 768px) {
-            .email-card .row {
-                flex-direction: row;
-                height: 100%;
-            }
-        }
-
-        /* Card content styling */
-        .email-card-body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 2rem;
-        }
-
-        .email-header {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-    </style>
 </head>
 <body>
     <%- include("./partials/nav") %>
@@ -55,35 +16,26 @@
 
 
     <!-- Main Container -->
-    <div class="email-container">
-        <!-- Header -->
-        <h2 class="email-header">Verify Your Email</h2>
-
-        <!-- Email Card -->
-        <div class="card shadow-sm email-card">
-            <div class="row g-0">
-                <!-- Left Side - Image Section -->
-                <div class="col-md-6  d-md-block">
-                    <img src="/email-verification.png" alt="Verification Image" class="img-fluid rounded-start" style="height: 100%; width: 100%; object-fit: cover;">
+    <div class="container d-flex justify-content-center align-items-center animate-fade-up" style="min-height: 80vh;">
+        <div class="modern-card p-4 p-md-5 w-100" style="max-width: 500px;">
+            <div class="text-center mb-4">
+                <div class="mb-3">
+                    <i class="fas fa-envelope-open-text text-primary" style="font-size: 3.5rem;"></i>
                 </div>
-
-                <!-- Right Side - Form Section -->
-                <div class="col-md-6">
-                    <div class="email-card-body">
-                        <h5 class="card-title text-center">Check Email</h5>
-                        <form id="emailForm" method="POST" action="/check-mail">
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email address</label>
-                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
-                                <div id="emailFeedback" class="invalid-feedback" style="display: none;">
-                                    User does not exist.
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">Check</button>
-                        </form>
+                <h2 class="fw-bold text-dark mb-2">Verify Your Email</h2>
+                <p class="text-muted">Enter the email associated with your account to reset your password.</p>
+            </div>
+            
+            <form id="emailForm" method="POST" action="/check-mail">
+                <div class="form-floating mb-4 position-relative">
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                    <label for="email" class="text-muted">Email address</label>
+                    <div id="emailFeedback" class="invalid-feedback text-center mt-2 fw-semibold">
+                        User does not exist.
                     </div>
                 </div>
-            </div>
+                <button type="submit" class="btn btn-primary-custom w-100 py-3 fs-5">Check Email <i class="fas fa-arrow-right ms-2"></i></button>
+            </form>
         </div>
     </div>
 
@@ -105,7 +57,7 @@
 
                 const emailFeedback = document.getElementById("emailFeedback");
                 if (result.exists) {
-                    window.location.href = "https://blogspace-b8kj.onrender.com/user/verify-otp";
+                    window.location.href = "/user/verify-otp";
                     
                 } 
                 else{

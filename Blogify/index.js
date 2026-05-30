@@ -13,8 +13,7 @@ require('./routes/passport-setup');
 const {generateToken}=require("./services/authentication");
 const methodOverride = require('method-override');
 const mail=require("./routes/mails");
-const sendMail=require("./controllers/sendMail");
-const MongoStore = require('connect-mongo'); // Import MongoStore
+const MongoStore = require('connect-mongo');
 
 
 
@@ -27,7 +26,7 @@ mongoose.connect(process.env.MONGO_URL)
     console.log("mongodb connected");
 })
 
-const PORT=5000;
+const PORT=process.env.PORT || 5001;
 const app=express();
  
 
@@ -69,53 +68,75 @@ app.get('/auth/google/callback', passport.authenticate('google'), async (req, re
     try {
         const isNewUser = !req.user.createdAt || (Date.now() - new Date(req.user.createdAt).getTime()) < 10000; // Assuming recent creation
         
-        
-        if (isNewUser) {
-            req.session.email=req.user.email;
-            await sendMail(req, res); // Send mail if it's a new user
-            req.session.toast = { status: 'success', message: 'Welcome! Your password has been sent via email.' };
-        } else {
-            req.session.toast = { status: 'success', message: 'Welcome back!' };
-        }
-
         const token = generateToken(req.user);
         res.cookie("token", token, { httpOnly: true });
-        res.redirect('/');
+        
+        if (isNewUser) {
+            req.session.email = req.user.email;
+            req.session.toast = { status: 'success', message: 'Welcome! Please set a custom password for your account.' };
+            return res.redirect('/user/change-password');
+        } else {
+            req.session.toast = { status: 'success', message: 'Welcome back!' };
+            return res.redirect('/');
+        }
+
     } catch (error) {
         console.error('Error in callback:', error);
-        res.redirect('/signup');
+        res.redirect('/user/signup');
     }
 });
 
 
 
 
-app.get("/",cookieValidation,async(req,res)=>{
-    const allBlogs = await Blog.find({}).sort({ createdAt: -1 });
+app.get("/", cookieValidation, async(req, res) => {
+    try {
+        const allBlogs = await Blog.find({}).sort({ createdAt: -1 }).populate("createdBy").lean();
 
-   
-
-    const toast = req.session.toast || null;
-    req.session.toast = null;
-    
-    return res.render("home",{
-        user:req.user,
-        blogs:allBlogs,
-        toast,
+        const toast = req.session.toast || null;
+        req.session.toast = null;
         
-    });
-})
-app.post("/category",cookieValidation,async(req,res)=>{
-    const {category}=req.body;
+        return res.render("home", {
+            user: req.user,
+            blogs: allBlogs,
+            searchQuery: null,
+            toast,
+        });
+    } catch (error) {
+        console.error("Error loading home page:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
 
-    const allBlogs=await Blog.find({ category: category.toLowerCase()}).populate("createdBy");
-    console.log(allBlogs);
-    return res.render("home",{
-      user:req.user,
-      blogs:allBlogs,
-      toast:{},
-  });
-  })
+app.post("/search", cookieValidation, async(req, res) => {
+    try {
+        const { query } = req.body;
+        
+        if (!query || query.trim() === "") {
+            return res.redirect("/");
+        }
+
+        const regex = new RegExp(query, 'i'); // Case-insensitive match
+        
+        const allBlogs = await Blog.find({
+            $or: [
+                { title: { $regex: regex } },
+                { category: { $regex: regex } },
+                { body: { $regex: regex } }
+            ]
+        }).sort({ createdAt: -1 }).populate("createdBy").lean();
+        
+        return res.render("home", {
+          user: req.user,
+          blogs: allBlogs,
+          searchQuery: query,
+          toast: {},
+        });
+    } catch (error) {
+        console.error("Error loading search page:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
 
  app.get("/terms", (req, res, next) => {
     cookieValidation(req, res, () => {
@@ -134,4 +155,8 @@ app.use("/mail",cookieValidation,mail);
 app.use("/blog",blogRouter);
 app.use("/user",router);
 
-app.listen(PORT,()=>console.log("server started"));
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => console.log(`Server started on PORT ${PORT}`));
+}
+
+module.exports = app;
