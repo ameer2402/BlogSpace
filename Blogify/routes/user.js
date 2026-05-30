@@ -263,7 +263,7 @@ router.post("/bookmark/:blogId", cookieValidation, requireAuth, async (req, res)
           user.bookmarks = [];
       }
 
-      const index = user.bookmarks.indexOf(blogId);
+      const index = user.bookmarks.findIndex(id => String(id) === String(blogId));
       let bookmarked = false;
 
       if (index === -1) {

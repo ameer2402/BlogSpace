@@ -248,7 +248,7 @@ route.post("/like/:id", cookieValidation, requireAuth, async (req, res) => {
         }
         
         const userId = req.user._id;
-        const index = blog.likes.indexOf(userId);
+        const index = blog.likes.findIndex(id => String(id) === String(userId));
         let liked = false;
         
         if (index === -1) {
